@@ -1,6 +1,6 @@
 name: MyPlot
 main: MyPlot\MyPlot
-version: 1.10.0
+version: 1.11.0
 api:
 - 3.4.0
 authors:
@@ -58,6 +58,8 @@ permissions:
         default: true
       myplot.command.done:
         default: true
+      myplot.command.merge:
+        default: true
       myplot.command.middle:
         default: true
       myplot.command.list:
@@ -106,6 +108,8 @@ permissions:
       myplot.admin.warp:
         default: op
       myplot.admin.done:
+        default: op
+      myplot.admin.merge:
         default: op
       myplot.admin.middle:
         default: true

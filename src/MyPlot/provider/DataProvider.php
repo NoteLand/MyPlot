@@ -66,6 +66,18 @@ abstract class DataProvider
 
 	public abstract function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?Plot;
 
+	public abstract function getMergeOrigin(Plot $plot) : Plot;
+
+	public abstract function mergePlots(Plot $base, Plot ...$plots) : bool;
+
+	/**
+	 * @param Plot $plot
+	 * @param bool $adjacent
+	 *
+	 * @return Plot[]
+	 */
+	public abstract function getMergedPlots(Plot $plot, bool $adjacent = false) : array;
+
 	public abstract function close() : void;
 
 	/**

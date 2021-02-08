@@ -2,29 +2,43 @@
 declare(strict_types=1);
 namespace MyPlot\provider;
 
+use Exception;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+use pocketmine\math\Vector3;
+use SQLite3;
+use SQLite3Result;
+use SQLite3Stmt;
 
-class SQLiteDataProvider extends DataProvider
-{
-	/** @var \SQLite3 $db */
+class SQLiteDataProvider extends DataProvider {
+	/** @var SQLite3 $db */
 	private $db;
-	/** @var \SQLite3Stmt $sqlGetPlot */
+	/** @var SQLite3Stmt $sqlGetPlot */
 	protected $sqlGetPlot;
-	/** @var \SQLite3Stmt $sqlSavePlot */
+	/** @var SQLite3Stmt $sqlSavePlot */
 	protected $sqlSavePlot;
-	/** @var \SQLite3Stmt $sqlSavePlotById */
+	/** @var SQLite3Stmt $sqlSavePlotById */
 	protected $sqlSavePlotById;
-	/** @var \SQLite3Stmt $sqlRemovePlot */
+	/** @var SQLite3Stmt $sqlRemovePlot */
 	protected $sqlRemovePlot;
-	/** @var \SQLite3Stmt $sqlRemovePlotById */
+	/** @var SQLite3Stmt $sqlDisposeMergedPlot */
+	protected $sqlDisposeMergedPlot;
+	/** @var SQLite3Stmt $sqlRemovePlotById */
 	protected $sqlRemovePlotById;
-	/** @var \SQLite3Stmt $sqlGetPlotsByOwner */
+	/** @var SQLite3Stmt $sqlDisposeMergedPlotById */
+	protected $sqlDisposeMergedPlotById;
+	/** @var SQLite3Stmt $sqlGetPlotsByOwner */
 	protected $sqlGetPlotsByOwner;
-	/** @var \SQLite3Stmt $sqlGetPlotsByOwnerAndLevel */
+	/** @var SQLite3Stmt $sqlGetPlotsByOwnerAndLevel */
 	protected $sqlGetPlotsByOwnerAndLevel;
-	/** @var \SQLite3Stmt $sqlGetExistingXZ */
+	/** @var SQLite3Stmt $sqlGetExistingXZ */
 	protected $sqlGetExistingXZ;
+	/** @var SQLite3Stmt $sqlMergePlot */
+	protected $sqlMergePlot;
+	/** @var SQLite3Stmt $sqlGetMergeOrigin */
+	protected $sqlGetMergeOrigin;
+	/** @var SQLite3Stmt $sqlGetMergedPlots */
+	protected $sqlGetMergedPlots;
 
 	/**
 	 * SQLiteDataProvider constructor.
@@ -34,49 +48,51 @@ class SQLiteDataProvider extends DataProvider
 	 */
 	public function __construct(MyPlot $plugin, int $cacheSize = 0) {
 		parent::__construct($plugin, $cacheSize);
-		$this->db = new \SQLite3($this->plugin->getDataFolder() . "plots.db");
+		$this->db = new SQLite3($this->plugin->getDataFolder()."plots.db");
 		$this->db->exec("CREATE TABLE IF NOT EXISTS plots
 			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, name TEXT,
 			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INTEGER, price FLOAT);");
-		try{
+		try {
 			$this->db->exec("ALTER TABLE plots ADD pvp INTEGER;");
-		}catch(\Exception $e) {
+		}catch(Exception $e) {
 			// nothing :P
 		}
-		try{
+		try {
 			$this->db->exec("ALTER TABLE plots ADD price FLOAT;");
-		}catch(\Exception $e) {
+		}catch(Exception $e) {
 			// nothing :P
 		}
 		$stmt = $this->db->prepare("SELECT id, name, owner, helpers, denied, biome, pvp, price FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
-		if($stmt === false)
-			throw new \Exception();
+		if($stmt === false) {
+			throw new Exception();
+		}
 		$this->sqlGetPlot = $stmt;
 		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plots (id, level, X, Z, name, owner, helpers, denied, biome, pvp, price) VALUES
 			((SELECT id FROM plots WHERE level = :level AND X = :X AND Z = :Z),
 			 :level, :X, :Z, :name, :owner, :helpers, :denied, :biome, :pvp, :price);");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlSavePlot = $stmt;
 		$stmt = $this->db->prepare("UPDATE plots SET name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome, pvp = :pvp, price = :price WHERE id = :id;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlSavePlotById = $stmt;
 		$stmt = $this->db->prepare("DELETE FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlRemovePlot = $stmt;
 		$stmt = $this->db->prepare("DELETE FROM plots WHERE id = :id;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlRemovePlotById = $stmt;
 		$stmt = $this->db->prepare("SELECT * FROM plots WHERE owner = :owner;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlotsByOwner = $stmt;
 		$stmt = $this->db->prepare("SELECT * FROM plots WHERE owner = :owner AND level = :level;");
-		if($stmt === false)
-			throw new \Exception();
+		if($stmt === false) {
+			throw new Exception();
+		}
 		$this->sqlGetPlotsByOwnerAndLevel = $stmt;
 		$stmt = $this->db->prepare("SELECT X, Z FROM plots WHERE (
 				level = :level
@@ -85,9 +101,28 @@ class SQLiteDataProvider extends DataProvider
 					(abs(Z) = :number AND abs(X) <= :number)
 				)
 			);");
-		if($stmt === false)
-			throw new \Exception();
+		if($stmt === false) {
+			throw new Exception();
+		}
 		$this->sqlGetExistingXZ = $stmt;
+
+		$this->db->exec("CREATE TABLE IF NOT EXISTS mergedPlots (originId INTEGER, mergedId INTEGER UNIQUE, PRIMARY KEY (originId, mergedId), FOREIGN KEY (originId) REFERENCES plots (id) ON DELETE CASCADE , FOREIGN KEY (mergedId) REFERENCES plots (id) ON DELETE CASCADE);");
+
+		$stmt = $this->db->prepare("INSERT OR REPLACE INTO mergedPlots (originId, mergedId) VALUES (:originId, :mergedId);");
+		if($stmt === false) {
+			throw new Exception();
+		}
+		$this->sqlMergePlot = $stmt;
+		$stmt = $this->db->prepare("SELECT plots.id, level, X, Z, name, owner, helpers, denied, biome, pvp, price FROM plots LEFT JOIN mergedPlots ON mergedPlots.originId = plots.id WHERE mergedId = :mergedId;");
+		if($stmt === false) {
+			throw new Exception();
+		}
+		$this->sqlGetMergeOrigin = $stmt;
+		$stmt = $this->db->prepare("SELECT plots.id, level, X, Z, name, owner, helpers, denied, biome, pvp, price FROM plots LEFT JOIN mergedPlots ON mergedPlots.mergedId = plots.id WHERE originId = :originId;");
+		if($stmt === false) {
+			throw new Exception();
+		}
+		$this->sqlGetMergedPlots = $stmt;
 		$this->plugin->getLogger()->debug("SQLite data provider registered");
 	}
 
@@ -112,30 +147,57 @@ class SQLiteDataProvider extends DataProvider
 		$stmt->bindValue(":price", $plot->price, SQLITE3_FLOAT);
 		$stmt->reset();
 		$result = $stmt->execute();
-		if(!$result instanceof \SQLite3Result) {
+		if(!$result instanceof SQLite3Result) {
 			return false;
+		}
+		if($plot->id < 0) {
+			$plot->id = $this->db->lastInsertRowID();
 		}
 		$this->cachePlot($plot);
 		return true;
 	}
 
 	public function deletePlot(Plot $plot) : bool {
-		if($plot->id >= 0) {
-			$stmt = $this->sqlRemovePlotById;
-			$stmt->bindValue(":id", $plot->id, SQLITE3_INTEGER);
-		}else{
-			$stmt = $this->sqlRemovePlot;
-			$stmt->bindValue(":level", $plot->levelName, SQLITE3_TEXT);
-			$stmt->bindValue(":X", $plot->X, SQLITE3_INTEGER);
-			$stmt->bindValue(":Z", $plot->Z, SQLITE3_INTEGER);
+		if($plot->isMerge()) {
+			$settings = MyPlot::getInstance()->getLevelSettings($plot->levelName);
+			if($plot->id >= 0) {
+				$stmt = $this->sqlDisposeMergedPlotById;
+				$stmt->bindValue(":biome", $plot->biome, SQLITE3_TEXT);
+				$stmt->bindValue(":pvp", !$settings->restrictPVP, SQLITE3_INTEGER);
+				$stmt->bindValue(":price", $settings->claimPrice, SQLITE3_FLOAT);
+				$stmt->bindValue(":id", $plot->id, SQLITE3_INTEGER);
+			}else {
+				$stmt = $this->sqlDisposeMergedPlot;
+				$stmt->bindValue(":pvp", !$settings->restrictPVP, SQLITE3_INTEGER);
+				$stmt->bindValue(":price", $settings->claimPrice, SQLITE3_FLOAT);
+				$stmt->bindValue(":level", $plot->levelName, SQLITE3_TEXT);
+				$stmt->bindValue(":X", $plot->X, SQLITE3_INTEGER);
+				$stmt->bindValue(":Z", $plot->Z, SQLITE3_INTEGER);
+			}
+			$stmt->reset();
+			$result = $stmt->execute();
+			if(!$result instanceof SQLite3Result) {
+				return false;
+			}
+			$this->cachePlot($this->getMergeOrigin($plot));
+		}else {
+			if($plot->id >= 0) {
+				$stmt = $this->sqlRemovePlotById;
+				$stmt->bindValue(":id", $plot->id, SQLITE3_INTEGER);
+			}else {
+				$stmt = $this->sqlRemovePlot;
+				$stmt->bindValue(":level", $plot->levelName, SQLITE3_TEXT);
+				$stmt->bindValue(":X", $plot->X, SQLITE3_INTEGER);
+				$stmt->bindValue(":Z", $plot->Z, SQLITE3_INTEGER);
+			}
+			$stmt->reset();
+			$result = $stmt->execute();
+			if(!$result instanceof SQLite3Result) {
+				return false;
+			}
+			$plot = new Plot($plot->levelName, $plot->X, $plot->Z);
+			$this->cachePlot($plot);
 		}
-		$stmt->reset();
-		$result = $stmt->execute();
-		if(!$result instanceof \SQLite3Result) {
-			return false;
-		}
-		$plot = new Plot($plot->levelName, $plot->X, $plot->Z);
-		$this->cachePlot($plot);
 		return true;
 	}
 
@@ -243,5 +305,82 @@ class SQLiteDataProvider extends DataProvider
 	public function close() : void {
 		$this->db->close();
 		$this->plugin->getLogger()->debug("SQLite database closed!");
+	}
+
+	/**
+	 * @param Plot $base
+	 * @param Plot ...$plots
+	 *
+	 * @return bool
+	 */
+	public function mergePlots(Plot $base, Plot ...$plots) : bool {
+		$stmt = $this->sqlMergePlot;
+		$ret = true;
+		foreach($plots as $plot) {
+			$stmt->bindValue(":originId", $base->id);
+			$stmt->bindValue(":mergedId", $plot->id);
+			$stmt->reset();
+			$result = $stmt->execute();
+			if(!$result instanceof SQLite3Result) {
+				MyPlot::getInstance()->getLogger()->debug("Failed to merge plot id ".$plot->id." into ".$base->id);
+				$ret = false;
+				continue;
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * @param Plot $plot
+	 * @param bool $adjacent
+	 *
+	 * @return Plot[]
+	 */
+	public function getMergedPlots(Plot $plot, bool $adjacent = false) : array {
+		$origin = $this->getMergeOrigin($plot);
+		$stmt = $this->sqlGetMergedPlots;
+		$stmt->bindValue(":originId", $origin->id);
+		$stmt->reset();
+		$result = $stmt->execute();
+		$plots = [$origin];
+		while($result !== false and ($val = $result->fetchArray(SQLITE3_ASSOC)) !== false) {
+			$helpers = explode(",", (string)$val["helpers"]);
+			$denied = explode(",", (string)$val["denied"]);
+			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
+			$plots[] = new Plot((string)$val["level"], (int)$val["X"], (int)$val["Z"], (string)$val["name"], (string)$val["owner"], $helpers, $denied, (string)$val["biome"], $pvp, (float)$val["price"], (int)$val["id"]);
+		}
+		if($adjacent) {
+			$plots = array_filter($plots, function(Plot $val) use ($plot) : bool {
+				for($i = Vector3::SIDE_NORTH; $i <= Vector3::SIDE_EAST; ++$i) {
+					if($plot->getSide($i)->isSame($val)) {
+						return true;
+					}
+				}
+				return false;
+			});
+		}
+		return $plots;
+	}
+
+	/**
+	 * @param Plot $plot
+	 *
+	 * @return Plot
+	 */
+	public function getMergeOrigin(Plot $plot) : Plot {
+		$stmt = $this->sqlGetMergeOrigin;
+		$stmt->bindValue(":mergedId", $plot->id);
+		$stmt->reset();
+		$result = $stmt->execute();
+		if(!$result instanceof SQLite3Result) {
+			return $plot;
+		}
+		if(($val = $result->fetchArray(SQLITE3_ASSOC)) !== false) {
+			$helpers = explode(",", (string)$val["helpers"]);
+			$denied = explode(",", (string)$val["denied"]);
+			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
+			return new Plot((string)$val["level"], (int)$val["X"], (int)$val["Z"], (string)$val["name"], (string)$val["owner"], $helpers, $denied, (string)$val["biome"], $pvp, (float)$val["price"], (int)$val["id"]);
+		}
+		return $plot;
 	}
 }
