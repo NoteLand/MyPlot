@@ -22,8 +22,11 @@ use MyPlot\provider\SQLiteDataProvider;
 use MyPlot\provider\YAMLDataProvider;
 use MyPlot\task\ClearBorderTask;
 use MyPlot\task\ClearPlotTask;
+use MyPlot\utils\Border;
+use MyPlot\utils\Wall;
 use onebone\economyapi\EconomyAPI;
 use pocketmine\block\Block;
+use pocketmine\block\BlockFactory;
 use pocketmine\event\level\LevelLoadEvent;
 use pocketmine\lang\BaseLang;
 use pocketmine\level\biome\Biome;
@@ -55,9 +58,22 @@ class MyPlot extends PluginBase
 	/** @var BaseLang $baseLang */
 	private $baseLang = null;
 
+    /** @var Border[] $borders */
+    public static $borders = [];
+
+    /** @var Wall[] $walls */
+	public static $walls = [];
+
+	/** @var string $prefix */
+	private static $prefix = "";
+
 	public static function getInstance() : self {
 		return self::$instance;
 	}
+
+	public static function getPrefix() : string {
+	    return self::$prefix;
+    }
 
 	/**
 	 * Returns the Multi-lang management class
@@ -1104,6 +1120,20 @@ class MyPlot extends PluginBase
 			$eventListener->onLevelLoad(new LevelLoadEvent($level));
 		}
 		$this->getLogger()->debug(TF::BOLD.TF::GREEN."Enabled!");
+
+        foreach ($this->getConfig()->get("borders", []) as $name => $data) {
+            $block = explode(':', $data);
+            $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+            self::$borders[] = new Border($name, $block);
+        }
+
+        foreach ($this->getConfig()->get("walls", []) as $name => $data) {
+            $block = explode(':', $data);
+            $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+            self::$walls[] = new Wall($name, $block);
+        }
+
+        self::$prefix = $this->getConfig()->get("prefix");
 	}
 
 	public function addLevelSettings(string $levelName, PlotLevelSettings $settings) : bool {

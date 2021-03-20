@@ -4,6 +4,7 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\InfoForm;
+use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
@@ -41,7 +42,7 @@ class InfoSubCommand extends SubCommand
 					$sender->sendMessage($this->translateString("info.denied", [TextFormat::GREEN . $denied]));
 					$sender->sendMessage($this->translateString("info.biome", [TextFormat::GREEN . $plot->biome]));
 				}else{
-					$sender->sendMessage(TextFormat::RED . $this->translateString("info.notfound"));
+					$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("info.notfound"));
 				}
 			}else{
 				return false;
@@ -49,7 +50,7 @@ class InfoSubCommand extends SubCommand
 		}else{
 			$plot = $this->getPlugin()->getPlotByPosition($sender);
 			if($plot === null) {
-				$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+				$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 				return true;
 			}
 			$sender->sendMessage($this->translateString("info.about", [TextFormat::GREEN . $plot]));

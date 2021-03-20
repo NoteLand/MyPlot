@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
+use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
@@ -26,15 +27,15 @@ class BuySubCommand extends SubCommand
 		}
 		$plot = $this->getPlugin()->getPlotByPosition($sender->asPosition());
 		if($plot === null){
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
 		if($plot->owner === $sender->getName() and !$sender->hasPermission("myplot.admin.buy")){
-			$sender->sendMessage(TextFormat::RED . $this->translateString("buy.noself"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("buy.noself"));
 			return true;
 		}
 		if($plot->price <= 0){
-			$sender->sendMessage(TextFormat::RED . $this->translateString("buy.notforsale"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("buy.notforsale"));
 			return true;
 		}
 		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($sender);
@@ -46,21 +47,21 @@ class BuySubCommand extends SubCommand
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("claim.maxplots", [$maxPlots]));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("claim.maxplots", [$maxPlots]));
 			return true;
 		}
 		$price = $plot->price;
 		if(strtolower($args[0] ?? "") !== $this->translateString("confirm")){
-			$sender->sendMessage($this->translateString("buy.confirm", ["{$plot->X};{$plot->Z}", $price]));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("buy.confirm", ["{$plot->X};{$plot->Z}", $price]));
 			return true;
 		}
 		$oldOwner = $this->getPlugin()->getServer()->getPlayer($plot->owner);
 		if($this->getPlugin()->buyPlot($plot, $sender)) {
-			$sender->sendMessage($this->translateString("buy.success", ["{$plot->X};{$plot->Z}", $price]));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("buy.success", ["{$plot->X};{$plot->Z}", $price]));
 			if($oldOwner !== null)
 				$oldOwner->sendMessage($this->translateString("buy.sold", [$sender->getName(), "{$plot->X};{$plot->Z}", $price])); // TODO: queue messages for sending when player rejoins
 		}else{
-			$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 		}
 		return true;
 	}

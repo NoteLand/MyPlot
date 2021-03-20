@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
+use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat as TF;
@@ -27,7 +28,7 @@ class ListSubCommand extends SubCommand {
 						$name = $plot->name;
 						$x = $plot->X;
 						$z = $plot->Z;
-						$sender->sendMessage(TF::YELLOW . $this->translateString("list.found", [$name, $x, $z]));
+						$sender->sendMessage(MyPlot::getPrefix() . TF::YELLOW . $this->translateString("list.found", [$name, $x, $z]));
 					}
 				}
 			}else{
@@ -37,7 +38,7 @@ class ListSubCommand extends SubCommand {
 						$name = $plot->name;
 						$x = $plot->X;
 						$z = $plot->Z;
-						$sender->sendMessage(TF::YELLOW . $this->translateString("list.found", [$name, $x, $z]));
+						$sender->sendMessage(MyPlot::getPrefix() . TF::YELLOW . $this->translateString("list.found", [$name, $x, $z]));
 					}
 				}
 			}
@@ -48,7 +49,7 @@ class ListSubCommand extends SubCommand {
 					$name = $plot->name;
 					$x = $plot->X;
 					$z = $plot->Z;
-					$sender->sendMessage(TF::YELLOW . $this->translateString("list.found", [$name, $x, $z]));
+					$sender->sendMessage(MyPlot::getPrefix() . TF::YELLOW . $this->translateString("list.found", [$name, $x, $z]));
 				}
 			}
 		}

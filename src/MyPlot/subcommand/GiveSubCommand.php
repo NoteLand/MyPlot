@@ -4,6 +4,7 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\GiveForm;
+use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
@@ -28,19 +29,19 @@ class GiveSubCommand extends SubCommand
 		$newOwner = $args[0];
 		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if($plot === null) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
 		if($plot->owner !== $sender->getName()) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notowner"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
 		$newOwner = $this->getPlugin()->getServer()->getPlayer($newOwner);
 		if(!$newOwner instanceof Player) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("give.notonline"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("give.notonline"));
 			return true;
 		}elseif($newOwner->getName() === $sender->getName()) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("give.toself"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("give.toself"));
 			return true;
 		}
 		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($newOwner);
@@ -52,7 +53,7 @@ class GiveSubCommand extends SubCommand
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("give.maxedout", [$maxPlots]));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("give.maxedout", [$maxPlots]));
 			return true;
 		}
 		if(count($args) == 2 and $args[1] == $this->translateString("confirm")) {
@@ -60,15 +61,15 @@ class GiveSubCommand extends SubCommand
 				$plotId = TextFormat::GREEN . $plot . TextFormat::WHITE;
 				$oldOwnerName = TextFormat::GREEN . $sender->getName() . TextFormat::WHITE;
 				$newOwnerName = TextFormat::GREEN . $newOwner->getName() . TextFormat::WHITE;
-				$sender->sendMessage($this->translateString("give.success", [$newOwnerName]));
+				$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("give.success", [$newOwnerName]));
 				$newOwner->sendMessage($this->translateString("give.received", [$oldOwnerName, $plotId]));
 			}else{
-				$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
+				$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 			}
 		}else{
 			$plotId = TextFormat::GREEN . $plot . TextFormat::WHITE;
 			$newOwnerName = TextFormat::GREEN . $newOwner->getName() . TextFormat::WHITE;
-			$sender->sendMessage($this->translateString("give.confirm", [$plotId, $newOwnerName]));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("give.confirm", [$plotId, $newOwnerName]));
 		}
 		return true;
 	}

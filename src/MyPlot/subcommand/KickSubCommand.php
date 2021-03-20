@@ -4,6 +4,7 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\KickForm;
+use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
@@ -25,33 +26,33 @@ class KickSubCommand extends SubCommand
 		if (!isset($args[0])) return false;
 		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if($plot === null) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
 		if ($plot->owner !== $sender->getName() and !$sender->hasPermission("myplot.admin.kick")) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notowner"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
 		$target = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if ($target === null) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("kick.noPlayer"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("kick.noPlayer"));
 			return true;
 		}
 		if (($targetPlot = $this->getPlugin()->getPlotByPosition($target)) === null or !$plot->isSame($targetPlot)) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("kick.notInPlot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("kick.notInPlot"));
 			return true;
 		}
 		if ($target->hasPermission("myplot.admin.kick.bypass")) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("kick.cannotkick"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("kick.cannotkick"));
 			$target->sendMessage($this->translateString("kick.attemptkick", [$target->getName()]));
 			return true;
 		}
 		if ($this->getPlugin()->teleportPlayerToPlot($target, $plot)) {
-			$sender->sendMessage($this->translateString("kick.success1", [$target->getName(), $plot->__toString()]));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("kick.success1", [$target->getName(), $plot->__toString()]));
 			$target->sendMessage($this->translateString("kick.success2", [$sender->getName(), $plot->__toString()]));
 			return true;
 		}
-		$sender->sendMessage($this->translateString("error"));
+		$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("error"));
 		return true;
 	}
 

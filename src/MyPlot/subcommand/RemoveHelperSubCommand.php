@@ -4,6 +4,7 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\RemoveHelperForm;
+use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
 use pocketmine\OfflinePlayer;
@@ -29,20 +30,20 @@ class RemoveHelperSubCommand extends SubCommand
 		$helperName = $args[0];
 		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if($plot === null) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
 		if($plot->owner !== $sender->getName() and !$sender->hasPermission("myplot.admin.removehelper")) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notowner"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
 		$helper = $this->getPlugin()->getServer()->getPlayer($helperName);
 		if($helper === null)
 			$helper = new OfflinePlayer($this->getPlugin()->getServer(), $helperName);
 		if($this->getPlugin()->removePlotHelper($plot, $helper->getName())) {
-			$sender->sendMessage($this->translateString("removehelper.success", [$helper->getName()]));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("removehelper.success", [$helper->getName()]));
 		}else{
-			$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 		}
 		return true;
 	}

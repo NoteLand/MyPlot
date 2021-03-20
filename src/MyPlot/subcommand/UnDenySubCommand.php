@@ -4,6 +4,7 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\UndenyPlayerForm;
+use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
 use pocketmine\OfflinePlayer;
@@ -29,23 +30,23 @@ class UnDenySubCommand extends SubCommand
 		$dplayerName = $args[0];
 		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if($plot === null) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
 		if($plot->owner !== $sender->getName() and !$sender->hasPermission("myplot.admin.undenyplayer")) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notowner"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
 		$dplayer = $this->getPlugin()->getServer()->getPlayer($dplayerName);
 		if($dplayer === null)
 			$dplayer = new OfflinePlayer($this->getPlugin()->getServer(), $dplayerName);
 		if($this->getPlugin()->removePlotDenied($plot, $dplayer->getName())) {
-			$sender->sendMessage($this->translateString("undenyplayer.success1", [$dplayer->getName()]));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("undenyplayer.success1", [$dplayer->getName()]));
 			if($dplayer instanceof Player) {
 				$dplayer->sendMessage($this->translateString("undenyplayer.success2", [$plot->X, $plot->Z, $sender->getName()]));
 			}
 		}else{
-			$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 		}
 		return true;
 	}

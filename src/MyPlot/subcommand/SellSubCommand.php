@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
+use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
@@ -25,22 +26,22 @@ class SellSubCommand extends SubCommand
 		}
 		$plot = $this->getPlugin()->getPlotByPosition($sender->asPosition());
 		if($plot === null){
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
 		if($plot->owner !== $sender->getName() and !$sender->hasPermission("myplot.admin.sell")){
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notowner"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
 		if(!is_numeric($args[0]))
 			return false;
 		$price = (float)$args[0];
 		if($this->getPlugin()->sellPlot($plot, $price) and $price > 0) {
-			$sender->sendMessage($this->translateString("sell.success", ["{$plot->X};{$plot->Z}", $price]));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("sell.success", ["{$plot->X};{$plot->Z}", $price]));
 		}elseif($price <= 0){
-			$sender->sendMessage(TextFormat::RED . $this->translateString("sell.unlisted", ["{$plot->X};{$plot->Z}"]));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("sell.unlisted", ["{$plot->X};{$plot->Z}"]));
 		}else{
-			$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 		}
 		return true;
 	}

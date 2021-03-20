@@ -28,14 +28,14 @@ class ClaimSubCommand extends SubCommand
 		}
 		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if($plot === null) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
 		if($plot->owner != "") {
 			if($plot->owner === $sender->getName()) {
-				$sender->sendMessage(TextFormat::RED . $this->translateString("claim.yourplot"));
+				$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("claim.yourplot"));
 			}else{
-				$sender->sendMessage(TextFormat::RED . $this->translateString("claim.alreadyclaimed", [$plot->owner]));
+				$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("claim.alreadyclaimed", [$plot->owner]));
 			}
 			return true;
 		}
@@ -48,18 +48,18 @@ class ClaimSubCommand extends SubCommand
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("claim.maxplots", [$maxPlots]));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("claim.maxplots", [$maxPlots]));
 			return true;
 		}
 		$economy = $this->getPlugin()->getEconomyProvider();
 		if($economy !== null and !$economy->reduceMoney($sender, $plot->price)) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("claim.nomoney"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("claim.nomoney"));
 			return true;
 		}
 		if($this->getPlugin()->claimPlot($plot, $sender->getName(), $name)) {
-			$sender->sendMessage($this->translateString("claim.success"));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("claim.success"));
 		}else{
-			$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 		}
 		return true;
 	}

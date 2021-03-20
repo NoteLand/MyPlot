@@ -4,6 +4,7 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\OwnerForm;
+use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
@@ -26,7 +27,7 @@ class SetOwnerSubCommand extends SubCommand {
 		}
 		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if($plot === null) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
 		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($sender);
@@ -38,13 +39,13 @@ class SetOwnerSubCommand extends SubCommand {
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
-			$sender->sendMessage(TextFormat::RED . $this->translateString("setowner.maxplots", [$maxPlots]));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("setowner.maxplots", [$maxPlots]));
 			return true;
 		}
 		if($this->getPlugin()->claimPlot($plot, $args[0])) {
-			$sender->sendMessage($this->translateString("setowner.success", [$args[0]]));
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("setowner.success", [$args[0]]));
 		}else{
-			$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 		}
 		return true;
 	}

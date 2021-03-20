@@ -70,6 +70,10 @@ permissions:
         default: true
       myplot.command.buy:
         default: true
+      myplot.command.border:
+        default: true
+      myplot.command.wall:
+        default: true
   myplot.admin:
     default: op
     children:
@@ -122,6 +126,10 @@ permissions:
         default: op
       myplot.admin.buy:
         default: op
+      myplot.admin.border:
+        default: true
+      myplot.admin.wall:
+        default: true
   myplot.claimplots:
     default: op
     children:

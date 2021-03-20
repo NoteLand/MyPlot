@@ -7,6 +7,7 @@ use MyPlot\forms\MainForm;
 use MyPlot\subcommand\AddHelperSubCommand;
 use MyPlot\subcommand\AutoSubCommand;
 use MyPlot\subcommand\BiomeSubCommand;
+use MyPlot\subcommand\BorderSubCommand;
 use MyPlot\subcommand\BuySubCommand;
 use MyPlot\subcommand\ClaimSubCommand;
 use MyPlot\subcommand\ClearSubCommand;
@@ -30,6 +31,7 @@ use MyPlot\subcommand\SellSubCommand;
 use MyPlot\subcommand\SetOwnerSubCommand;
 use MyPlot\subcommand\SubCommand;
 use MyPlot\subcommand\UnDenySubCommand;
+use MyPlot\subcommand\WallSubCommand;
 use MyPlot\subcommand\WarpSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
@@ -81,7 +83,8 @@ class Commands extends PluginCommand
 		$this->loadSubCommand(new ListSubCommand($plugin, "list"));
 		$this->loadSubCommand(new PvpSubCommand($plugin, "pvp"));
 		$this->loadSubCommand(new KickSubCommand($plugin, "kick"));
-		# Todo: Border, Wall, Merge, Menu
+		$this->loadSubCommand(new BorderSubCommand($plugin, "border"));
+		$this->loadSubCommand(new WallSubCommand($plugin, "wall"));
 		if($plugin->getEconomyProvider() !== null) {
 			$this->loadSubCommand(new SellSubCommand($plugin, "sell"));
 			$this->loadSubCommand(new BuySubCommand($plugin, "buy"));
