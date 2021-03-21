@@ -7,6 +7,7 @@ namespace MyPlot\subcommand;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
 use MyPlot\forms\MyPlotForm;
+use MyPlot\forms\subforms\BorderForm;
 use MyPlot\MyPlot;
 use MyPlot\task\ChangeBorderTask;
 use pocketmine\command\CommandSender;
@@ -38,31 +39,15 @@ class BorderSubCommand extends SubCommand
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
             return true;
         }
-        $elements = [];
-        foreach (MyPlot::$borders as $border) {
-            $elements[] = new MenuOption("§c" . $border->getName());
-        }
-        $form = new MenuForm(
-            $this->translateString("border.title"),
-            $this->translateString("border.content"),
-            $elements,
-
-            /**
-             * Called when the player submits the form.
-             *
-             * @param Player $submitter
-             * @param int    $selected
-             */
-            function(Player $submitter, int $selected) use ($plot) : void{
-                $border = MyPlot::$borders[$selected];
-                MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, $border, $submitter));
-            }
-        );
+        $form = new BorderForm();
+        $form->setPlot($plot);
         $sender->sendForm($form);
         return true;
     }
 
     public function getForm(?Player $player = null) : ?MyPlotForm {
+        if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getLevelNonNull()->getFolderName()))
+            return new BorderForm();
         return null;
     }
 }

@@ -6,6 +6,9 @@ use pocketmine\math\Vector3;
 
 class Plot
 {
+
+    #ToDo: Add description
+
 	/** @var string $levelName */
 	public $levelName = "";
 	/** @var int $X */

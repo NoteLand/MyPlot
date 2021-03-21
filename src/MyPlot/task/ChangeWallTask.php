@@ -14,7 +14,7 @@ use pocketmine\scheduler\Task;
 class ChangeWallTask extends Task
 {
 
-    private $plot, $level, $height, $plotWallBlock, $plotBeginPos, $xMax, $zMax;
+    private $plot, $level, $height, $plotWallBlock, $plotBeginPos, $xMax, $zMax, $player;
 
     public function __construct(Plot $plot, Wall $wall, Player $player = null) {
         $this->plot = $plot;
@@ -27,6 +27,7 @@ class ChangeWallTask extends Task
         $this->zMax = $this->plotBeginPos->z + $plotSize + 1;
         $this->height = $plotLevel->groundHeight;
         $this->plotWallBlock = $wall->getBlock();
+        $this->player = $player;
     }
 
     public function onRun(int $currentTick) : void {
@@ -41,6 +42,9 @@ class ChangeWallTask extends Task
                 $this->level->setBlock(new Vector3($this->plotBeginPos->x, $y, $z), $this->plotWallBlock, false, false);
                 $this->level->setBlock(new Vector3($this->xMax, $y, $z), $this->plotWallBlock, false, false);
             }
+        }
+        if ($this->player !== null) {
+            $this->player->sendMessage(MyPlot::getPrefix() . MyPlot::getInstance()->getLanguage()->translateString("wall.success", [$this->plot]));
         }
     }
 }

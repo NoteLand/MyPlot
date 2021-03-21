@@ -7,6 +7,7 @@ namespace MyPlot\subcommand;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
 use MyPlot\forms\MyPlotForm;
+use MyPlot\forms\subforms\WallForm;
 use MyPlot\MyPlot;
 use MyPlot\task\ChangeWallTask;
 use pocketmine\command\CommandSender;
@@ -38,31 +39,15 @@ class WallSubCommand extends SubCommand
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
             return true;
         }
-        $elements = [];
-        foreach (MyPlot::$walls as $wall) {
-            $elements[] = new MenuOption("§c" . $wall->getName());
-        }
-        $form = new MenuForm(
-            $this->translateString("wall.title"),
-            $this->translateString("wall.content"),
-            $elements,
-
-            /**
-             * Called when the player submits the form.
-             *
-             * @param Player $submitter
-             * @param int    $selected
-             */
-            function(Player $submitter, int $selected) use ($plot) : void{
-                $wall = MyPlot::$walls[$selected];
-                MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeWallTask($plot, $wall, $submitter));
-            }
-        );
+        $form = new WallForm();
+        $form->setPlot($plot);
         $sender->sendForm($form);
         return true;
     }
 
     public function getForm(?Player $player = null) : ?MyPlotForm {
+        if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getLevelNonNull()->getFolderName()))
+            return new WallForm();
         return null;
     }
 }

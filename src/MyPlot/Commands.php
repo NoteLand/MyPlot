@@ -63,6 +63,7 @@ class Commands extends PluginCommand
 		$this->loadSubCommand(new HelpSubCommand($plugin, "help", $this));
 		$this->loadSubCommand(new ClaimSubCommand($plugin, "claim"));
 		$this->loadSubCommand(new GenerateSubCommand($plugin, "generate"));
+        $this->loadSubCommand(new BorderSubCommand($plugin, "border"));
 		$this->loadSubCommand(new InfoSubCommand($plugin, "info"));
 		$this->loadSubCommand(new AddHelperSubCommand($plugin, "addhelper"));
 		$this->loadSubCommand(new RemoveHelperSubCommand($plugin, "removehelper"));
@@ -83,8 +84,7 @@ class Commands extends PluginCommand
 		$this->loadSubCommand(new ListSubCommand($plugin, "list"));
 		$this->loadSubCommand(new PvpSubCommand($plugin, "pvp"));
 		$this->loadSubCommand(new KickSubCommand($plugin, "kick"));
-		$this->loadSubCommand(new BorderSubCommand($plugin, "border"));
-		$this->loadSubCommand(new WallSubCommand($plugin, "wall"));
+        $this->loadSubCommand(new WallSubCommand($plugin, "wall"));
 		if($plugin->getEconomyProvider() !== null) {
 			$this->loadSubCommand(new SellSubCommand($plugin, "sell"));
 			$this->loadSubCommand(new BuySubCommand($plugin, "buy"));

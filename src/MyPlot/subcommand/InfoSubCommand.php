@@ -33,14 +33,9 @@ class InfoSubCommand extends SubCommand
 				}
 				if(isset($plots[$key])) {
 					$plot = $plots[$key];
-					$sender->sendMessage($this->translateString("info.about", [TextFormat::GREEN . $plot]));
-					$sender->sendMessage($this->translateString("info.owner", [TextFormat::GREEN . $plot->owner]));
-					$sender->sendMessage($this->translateString("info.plotname", [TextFormat::GREEN . $plot->name]));
-					$helpers = implode(", ", $plot->helpers);
-					$sender->sendMessage($this->translateString("info.helpers", [TextFormat::GREEN . $helpers]));
-					$denied = implode(", ", $plot->denied);
-					$sender->sendMessage($this->translateString("info.denied", [TextFormat::GREEN . $denied]));
-					$sender->sendMessage($this->translateString("info.biome", [TextFormat::GREEN . $plot->biome]));
+					$form = new InfoForm($sender);
+					$form->setPlot($plot);
+					$sender->sendForm($form);
 				}else{
 					$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("info.notfound"));
 				}
@@ -53,14 +48,9 @@ class InfoSubCommand extends SubCommand
 				$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 				return true;
 			}
-			$sender->sendMessage($this->translateString("info.about", [TextFormat::GREEN . $plot]));
-			$sender->sendMessage($this->translateString("info.owner", [TextFormat::GREEN . $plot->owner]));
-			$sender->sendMessage($this->translateString("info.plotname", [TextFormat::GREEN . $plot->name]));
-			$helpers = implode(", ", $plot->helpers);
-			$sender->sendMessage($this->translateString("info.helpers", [TextFormat::GREEN . $helpers]));
-			$denied = implode(", ", $plot->denied);
-			$sender->sendMessage($this->translateString("info.denied", [TextFormat::GREEN . $denied]));
-			$sender->sendMessage($this->translateString("info.biome", [TextFormat::GREEN . $plot->biome]));
+            $form = new InfoForm($sender);
+            $form->setPlot($plot);
+            $sender->sendForm($form);
 		}
 		return true;
 	}
