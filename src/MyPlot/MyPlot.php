@@ -1130,14 +1130,18 @@ class MyPlot extends PluginBase
 
         foreach ($this->getConfig()->get("borders", []) as $name => $data) {
             $block = explode(':', $data);
-            $block = BlockFactory::get((int) $block[0], (int) $block[1]);
-            self::$borders[] = new Border($name, $block);
+            if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
+                $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+                self::$borders[] = new Border($name, $block);
+            }
         }
 
         foreach ($this->getConfig()->get("walls", []) as $name => $data) {
             $block = explode(':', $data);
-            $block = BlockFactory::get((int) $block[0], (int) $block[1]);
-            self::$walls[] = new Wall($name, $block);
+            if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
+                $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+                self::$walls[] = new Wall($name, $block);
+            }
         }
 
         self::$prefix = $this->getConfig()->get("prefix", "§l§aP2 §r");

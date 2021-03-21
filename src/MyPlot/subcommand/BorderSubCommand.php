@@ -39,6 +39,10 @@ class BorderSubCommand extends SubCommand
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
             return true;
         }
+        if (count(MyPlot::$borders) < 1) {
+            $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("border.empty"));
+            return true;
+        }
         $form = new BorderForm();
         $form->setPlot($plot);
         $sender->sendForm($form);
@@ -46,7 +50,7 @@ class BorderSubCommand extends SubCommand
     }
 
     public function getForm(?Player $player = null) : ?MyPlotForm {
-        if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getLevelNonNull()->getFolderName()))
+        if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getLevelNonNull()->getFolderName()) and (count(MyPlot::$borders) > 0))
             return new BorderForm();
         return null;
     }

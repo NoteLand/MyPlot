@@ -39,6 +39,10 @@ class WallSubCommand extends SubCommand
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
             return true;
         }
+        if (count(MyPlot::$walls) < 1) {
+            $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("wall.empty"));
+            return true;
+        }
         $form = new WallForm();
         $form->setPlot($plot);
         $sender->sendForm($form);
@@ -46,7 +50,7 @@ class WallSubCommand extends SubCommand
     }
 
     public function getForm(?Player $player = null) : ?MyPlotForm {
-        if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getLevelNonNull()->getFolderName()))
+        if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getLevelNonNull()->getFolderName()) and (count(MyPlot::$walls) > 0))
             return new WallForm();
         return null;
     }
