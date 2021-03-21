@@ -1140,7 +1140,7 @@ class MyPlot extends PluginBase
             self::$walls[] = new Wall($name, $block);
         }
 
-        self::$prefix = $this->getConfig()->get("prefix");
+        self::$prefix = $this->getConfig()->get("prefix", "§l§aP2 §r");
 	}
 
 	public function addLevelSettings(string $levelName, PlotLevelSettings $settings) : bool {

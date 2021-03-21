@@ -60,8 +60,8 @@ class HelpSubCommand extends SubCommand
 
 		$sender->sendMessage(MyPlot::getPrefix() . TextFormat::GREEN.$this->translateString("help.header", [$pageNumber, count($commands)]));
 		foreach($commands[$pageNumber - 1] as $command) {
-			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::BLUE . $command->getUsage().TextFormat::WHITE.":");
-			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::AQUA . $command->getDescription());
+			$sender->sendMessage(TextFormat::BLUE . $command->getUsage().TextFormat::WHITE.":");
+			$sender->sendMessage(TextFormat::AQUA . $command->getDescription());
 		}
 		return true;
 	}
