@@ -129,11 +129,11 @@ permissions:
       myplot.admin.buy:
         default: op
       myplot.admin.border:
-        default: true
+        default: op
       myplot.admin.wall:
-        default: true
+        default: op
       myplot.admin.description:
-        default: true
+        default: op
   myplot.claimplots:
     default: op
     children:
