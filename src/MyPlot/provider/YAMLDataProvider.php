@@ -27,11 +27,11 @@ class YAMLDataProvider extends DataProvider {
 	public function savePlot(Plot $plot) : bool {
 		$plots = $this->yaml->get("plots", []);
 		if($plot->id > -1) {
-			$plots[$plot->id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price];
+			$plots[$plot->id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "description" => $plot->description, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price];
 		}else{
 			$id = $this->yaml->get("count", 0) + 1;
 			$plot->id = $id;
-			$plots[$id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price];
+			$plots[$id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "description" => $plot->description, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price];
 			$this->yaml->set("count", $id);
 		}
 		$this->yaml->set("plots", $plots);
@@ -75,6 +75,7 @@ class YAMLDataProvider extends DataProvider {
 			}
 		}
 		if(is_int($key)) {
+            $description = (string)$plots[$key]["description"];
 			$plotName = (string)$plots[$key]["name"];
 			$owner = (string)$plots[$key]["owner"];
 			$helpers = (array)$plots[$key]["helpers"];
@@ -82,7 +83,7 @@ class YAMLDataProvider extends DataProvider {
 			$biome = strtoupper($plots[$key]["biome"]);
 			$pvp = (bool)$plots[$key]["pvp"];
 			$price = (float)$plots[$key]["price"];
-			return new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $key);
+			return new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $key);
 		}
 		return new Plot($levelName, $X, $Z);
 	}
@@ -105,6 +106,7 @@ class YAMLDataProvider extends DataProvider {
 					if($levelKey == $ownerKey) {
 						$X = $plots[$levelKey]["x"];
 						$Z = $plots[$levelKey]["z"];
+                        $description = $plots[$levelKey]["description"] == "" ? "" : $plots[$levelKey]["description"];
 						$plotName = $plots[$levelKey]["name"] == "" ? "" : $plots[$levelKey]["name"];
 						$owner = $plots[$levelKey]["owner"] == "" ? "" : $plots[$levelKey]["owner"];
 						$helpers = $plots[$levelKey]["helpers"] == [] ? [] : $plots[$levelKey]["helpers"];
@@ -112,7 +114,7 @@ class YAMLDataProvider extends DataProvider {
 						$biome = strtoupper($plots[$levelKey]["biome"]) == "PLAINS" ? "PLAINS" : strtoupper($plots[$levelKey]["biome"]);
 						$pvp = $plots[$levelKey]["pvp"] == null ? false : $plots[$levelKey]["pvp"];
 						$price = $plots[$levelKey]["price"] == null ? 0 : $plots[$levelKey]["price"];
-						$ownerPlots[] = new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $levelKey);
+						$ownerPlots[] = new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $levelKey);
 					}
 				}
 			}
@@ -123,6 +125,7 @@ class YAMLDataProvider extends DataProvider {
 				$levelName = $plots[$key]["level"];
 				$X = $plots[$key]["x"];
 				$Z = $plots[$key]["z"];
+                $description = $plots[$key]["description"] == "" ? "" : $plots[$key]["description"];
 				$plotName = $plots[$key]["name"] == "" ? "" : $plots[$key]["name"];
 				$owner = $plots[$key]["owner"] == "" ? "" : $plots[$key]["owner"];
 				$helpers = $plots[$key]["helpers"] == [] ? [] : $plots[$key]["helpers"];
@@ -130,7 +133,7 @@ class YAMLDataProvider extends DataProvider {
 				$biome = strtoupper($plots[$key]["biome"]) == "PLAINS" ? "PLAINS" : strtoupper($plots[$key]["biome"]);
 				$pvp = $plots[$key]["pvp"] == null ? false : $plots[$key]["pvp"];
 				$price = $plots[$key]["price"] == null ? 0 : $plots[$key]["price"];
-				$ownerPlots[] = new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $key);
+				$ownerPlots[] = new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $key);
 			}
 		}
 		return $ownerPlots;

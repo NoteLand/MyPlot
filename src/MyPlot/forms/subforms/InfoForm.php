@@ -22,7 +22,7 @@ class InfoForm extends SimpleMyPlotForm {
         $denied = implode(", ", $this->plot->denied);
 		parent::__construct(
 		    MyPlot::getInstance()->getLanguage()->translateString("info.title"),
-            MyPlot::getInstance()->getLanguage()->translateString("info.content", [$this->plot, $owner, "", $this->plot->name, $helpers, $denied]),
+            MyPlot::getInstance()->getLanguage()->translateString("info.content", [$this->plot, $owner, $this->plot->description, $this->plot->name, $helpers, $denied]),
             [],
             function(Player $submitter, int $selected) : void{}
         );

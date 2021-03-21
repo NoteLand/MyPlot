@@ -48,13 +48,16 @@ class MySQLProvider extends DataProvider {
 		$this->db = new \mysqli($settings['Host'], $settings['Username'], $settings['Password'], $settings['DatabaseName'], $settings['Port']);
 		if($this->db->connect_error !== '')
 			throw new \RuntimeException("Failed to connect to the MySQL database: " . $this->db->connect_error);
-		$this->db->query("CREATE TABLE IF NOT EXISTS plots (id INT PRIMARY KEY AUTO_INCREMENT, level TEXT, X INT, Z INT, name TEXT, owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INT, price FLOAT);");
+		$this->db->query("CREATE TABLE IF NOT EXISTS plots (id INT PRIMARY KEY AUTO_INCREMENT, level TEXT, X INT, Z INT, description TEXT, name TEXT, owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INT, price FLOAT);");
 		try{
 			$this->db->query("ALTER TABLE plots ADD COLUMN pvp INT AFTER biome;");
 		}catch(\Exception $e) {}
 		try{
 			$this->db->query("ALTER TABLE plots ADD COLUMN price FLOAT AFTER pvp;");
 		}catch(\Exception $e) {}
+        try{
+            $this->db->query("ALTER TABLE plots ADD COLUMN description TEXT AFTER Z;");
+        }catch(\Exception $e) {}
 		$this->prepare();
 		$this->plugin->getLogger()->debug("MySQL data provider registered");
 	}
@@ -65,10 +68,10 @@ class MySQLProvider extends DataProvider {
 		$denied = implode(',', $plot->denied);
 		if($plot->id >= 0) {
 			$stmt = $this->sqlSavePlotById;
-			$stmt->bind_param('isiisssssid', $plot->id, $plot->levelName, $plot->X, $plot->Z, $plot->name, $plot->owner, $helpers, $denied, $plot->biome, $plot->pvp, $plot->price);
+			$stmt->bind_param('isiissssssid', $plot->id, $plot->levelName, $plot->X, $plot->Z, $plot->description, $plot->name, $plot->owner, $helpers, $denied, $plot->biome, $plot->pvp, $plot->price);
 		}else{
 			$stmt = $this->sqlSavePlot;
-			$stmt->bind_param('siisiisssssid', $plot->levelName, $plot->X, $plot->Z, $plot->levelName, $plot->X, $plot->Z, $plot->name, $plot->owner, $helpers, $denied, $plot->biome, $plot->pvp, $plot->price);
+			$stmt->bind_param('siisiissssssid', $plot->levelName, $plot->X, $plot->Z, $plot->levelName, $plot->X, $plot->Z, $plot->description, $plot->name, $plot->owner, $helpers, $denied, $plot->biome, $plot->pvp, $plot->price);
 		}
 		$result = $stmt->execute();
 		if($result === false) {
@@ -123,7 +126,7 @@ class MySQLProvider extends DataProvider {
 				$denied = explode(",", (string) $val["denied"]);
 			}
 			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
-			$plot = new Plot($levelName, $X, $Z, (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
+			$plot = new Plot($levelName, $X, $Z, (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
 		}else{
 			$plot = new Plot($levelName, $X, $Z);
 		}
@@ -157,7 +160,7 @@ class MySQLProvider extends DataProvider {
 			$helpers = explode(",", (string) $val["helpers"]);
 			$denied = explode(",", (string) $val["denied"]);
 			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
-			$plots[] = new Plot((string) $val["level"], (int) $val["X"], (int) $val["Z"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
+			$plots[] = new Plot((string) $val["level"], (int) $val["X"], (int) $val["Z"], (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
 		}
 		// Remove unloaded plots
 		$plots = array_filter($plots, function(Plot $plot) : bool {
@@ -249,15 +252,15 @@ class MySQLProvider extends DataProvider {
 	}
 
 	private function prepare() : void {
-		$stmt = $this->db->prepare("SELECT id, name, owner, helpers, denied, biome, pvp, price FROM plots WHERE level = ? AND X = ? AND Z = ?;");
+		$stmt = $this->db->prepare("SELECT id, description, name, owner, helpers, denied, biome, pvp, price FROM plots WHERE level = ? AND X = ? AND Z = ?;");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlGetPlot = $stmt;
-		$stmt = $this->db->prepare("INSERT INTO plots (`id`, `level`, `X`, `Z`, `name`, `owner`, `helpers`, `denied`, `biome`, `pvp`, `price`) VALUES((SELECT id FROM plots p WHERE p.level = ? AND X = ? AND Z = ?),?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name = VALUES(name), owner = VALUES(owner), helpers = VALUES(helpers), denied = VALUES(denied), biome = VALUES(biome), pvp = VALUES(pvp), price = VALUES(price);");
+		$stmt = $this->db->prepare("INSERT INTO plots (`id`, `level`, `X`, `Z`, `description`, `name`, `owner`, `helpers`, `denied`, `biome`, `pvp`, `price`) VALUES((SELECT id FROM plots p WHERE p.level = ? AND X = ? AND Z = ?),?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE description = VALUES(description), name = VALUES(name), owner = VALUES(owner), helpers = VALUES(helpers), denied = VALUES(denied), biome = VALUES(biome), pvp = VALUES(pvp), price = VALUES(price);");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlSavePlot = $stmt;
-		$stmt = $this->db->prepare("UPDATE plots SET id = ?, level = ?, X = ?, Z = ?, name = ?, owner = ?, helpers = ?, denied = ?, biome = ?, pvp = ?, price = ? WHERE id = VALUES(id);");
+		$stmt = $this->db->prepare("UPDATE plots SET id = ?, level = ?, X = ?, Z = ?, description = ?, name = ?, owner = ?, helpers = ?, denied = ?, biome = ?, pvp = ?, price = ? WHERE id = VALUES(id);");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlSavePlotById = $stmt;

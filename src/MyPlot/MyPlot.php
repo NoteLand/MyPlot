@@ -517,6 +517,27 @@ class MyPlot extends PluginBase
 		return $this->savePlot($ev->getPlot());
 	}
 
+    /**
+     * Change the plot description
+     *
+     * @api
+     *
+     * @param Plot $plot
+     * @param string $newDesc
+     *
+     * @return bool
+     */
+    public function desribePlot(Plot $plot, string $newDesc = "") : bool {
+        $newPlot = clone $plot;
+        $newPlot->description = $newDesc;
+        $ev = new MyPlotSettingEvent($plot, $newPlot);
+        $ev->call();
+        if($ev->isCancelled()) {
+            return false;
+        }
+        return $this->savePlot($ev->getPlot());
+    }
+
 	/**
 	 * Clones a plot to another location
 	 *

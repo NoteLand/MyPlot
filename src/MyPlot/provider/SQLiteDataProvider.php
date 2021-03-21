@@ -36,7 +36,7 @@ class SQLiteDataProvider extends DataProvider
 		parent::__construct($plugin, $cacheSize);
 		$this->db = new \SQLite3($this->plugin->getDataFolder() . "plots.db");
 		$this->db->exec("CREATE TABLE IF NOT EXISTS plots
-			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, name TEXT,
+			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, description TEXT, name TEXT,
 			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INTEGER, price FLOAT);");
 		try{
 			$this->db->exec("ALTER TABLE plots ADD pvp INTEGER;");
@@ -48,17 +48,22 @@ class SQLiteDataProvider extends DataProvider
 		}catch(\Exception $e) {
 			// nothing :P
 		}
-		$stmt = $this->db->prepare("SELECT id, name, owner, helpers, denied, biome, pvp, price FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
+        try{
+            $this->db->exec("ALTER TABLE plots ADD description TEXT;");
+        }catch(\Exception $e) {
+            // nothing :P
+        }
+		$stmt = $this->db->prepare("SELECT id, description, name, owner, helpers, denied, biome, pvp, price FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlGetPlot = $stmt;
-		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plots (id, level, X, Z, name, owner, helpers, denied, biome, pvp, price) VALUES
+		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plots (id, level, X, Z, description, name, owner, helpers, denied, biome, pvp, price) VALUES
 			((SELECT id FROM plots WHERE level = :level AND X = :X AND Z = :Z),
-			 :level, :X, :Z, :name, :owner, :helpers, :denied, :biome, :pvp, :price);");
+			 :level, :X, :Z, :description, :name, :owner, :helpers, :denied, :biome, :pvp, :price);");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlSavePlot = $stmt;
-		$stmt = $this->db->prepare("UPDATE plots SET name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome, pvp = :pvp, price = :price WHERE id = :id;");
+		$stmt = $this->db->prepare("UPDATE plots SET description = :description, name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome, pvp = :pvp, price = :price WHERE id = :id;");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlSavePlotById = $stmt;
@@ -103,6 +108,7 @@ class SQLiteDataProvider extends DataProvider
 			$stmt->bindValue(":X", $plot->X, SQLITE3_INTEGER);
 			$stmt->bindValue(":Z", $plot->Z, SQLITE3_INTEGER);
 		}
+		$stmt->bindValue(":description", $plot->description, SQLITE3_TEXT);
 		$stmt->bindValue(":name", $plot->name, SQLITE3_TEXT);
 		$stmt->bindValue(":owner", $plot->owner, SQLITE3_TEXT);
 		$stmt->bindValue(":helpers", $helpers, SQLITE3_TEXT);
@@ -160,7 +166,7 @@ class SQLiteDataProvider extends DataProvider
 				$denied = explode(",", (string) $val["denied"]);
 			}
 			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
-			$plot = new Plot($levelName, $X, $Z, (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
+			$plot = new Plot($levelName, $X, $Z, (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
 		}else{
 			$plot = new Plot($levelName, $X, $Z);
 		}
@@ -189,7 +195,7 @@ class SQLiteDataProvider extends DataProvider
 			$helpers = explode(",", (string) $val["helpers"]);
 			$denied = explode(",", (string) $val["denied"]);
 			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
-			$plots[] = new Plot((string) $val["level"], (int) $val["X"], (int) $val["Z"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
+			$plots[] = new Plot((string) $val["level"], (int) $val["X"], (int) $val["Z"], (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
 		}
 		// Remove unloaded plots
 		$plots = array_filter($plots, function(Plot $plot) : bool {

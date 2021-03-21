@@ -74,6 +74,8 @@ permissions:
         default: true
       myplot.command.wall:
         default: true
+      myplot.command.description:
+        default: true
   myplot.admin:
     default: op
     children:
@@ -129,6 +131,8 @@ permissions:
       myplot.admin.border:
         default: true
       myplot.admin.wall:
+        default: true
+      myplot.admin.description:
         default: true
   myplot.claimplots:
     default: op

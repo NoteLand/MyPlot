@@ -13,6 +13,7 @@ use MyPlot\subcommand\ClaimSubCommand;
 use MyPlot\subcommand\ClearSubCommand;
 use MyPlot\subcommand\CloneSubCommand;
 use MyPlot\subcommand\DenyPlayerSubCommand;
+use MyPlot\subcommand\DescriptionSubCommand;
 use MyPlot\subcommand\DisposeSubCommand;
 use MyPlot\subcommand\GenerateSubCommand;
 use MyPlot\subcommand\GiveSubCommand;
@@ -65,6 +66,7 @@ class Commands extends PluginCommand
 		$this->loadSubCommand(new GenerateSubCommand($plugin, "generate"));
         $this->loadSubCommand(new BorderSubCommand($plugin, "border"));
 		$this->loadSubCommand(new InfoSubCommand($plugin, "info"));
+		$this->loadSubCommand(new DescriptionSubCommand($plugin, "description"));
 		$this->loadSubCommand(new AddHelperSubCommand($plugin, "addhelper"));
 		$this->loadSubCommand(new RemoveHelperSubCommand($plugin, "removehelper"));
 		$this->loadSubCommand(new AutoSubCommand($plugin, "auto"));
