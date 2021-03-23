@@ -9,6 +9,7 @@ use MyPlot\subcommand\AutoSubCommand;
 use MyPlot\subcommand\BiomeSubCommand;
 use MyPlot\subcommand\BorderSubCommand;
 use MyPlot\subcommand\BuySubCommand;
+use MyPlot\subcommand\ChatSubCommand;
 use MyPlot\subcommand\ClaimSubCommand;
 use MyPlot\subcommand\ClearSubCommand;
 use MyPlot\subcommand\CloneSubCommand;
@@ -30,6 +31,7 @@ use MyPlot\subcommand\RemoveHelperSubCommand;
 use MyPlot\subcommand\ResetSubCommand;
 use MyPlot\subcommand\SellSubCommand;
 use MyPlot\subcommand\SetOwnerSubCommand;
+use MyPlot\subcommand\SpawnSubCommand;
 use MyPlot\subcommand\SubCommand;
 use MyPlot\subcommand\UnDenySubCommand;
 use MyPlot\subcommand\WallSubCommand;
@@ -61,40 +63,44 @@ class Commands extends PluginCommand
 		$this->setAliases([$plugin->getLanguage()->get("command.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("command.desc"));
 		$this->setUsage($plugin->getLanguage()->get("command.usage"));
-		$this->loadSubCommand(new HelpSubCommand($plugin, "help", $this));
-		$this->loadSubCommand(new ClaimSubCommand($plugin, "claim"));
-		$this->loadSubCommand(new GenerateSubCommand($plugin, "generate"));
-        $this->loadSubCommand(new BorderSubCommand($plugin, "border"));
-		$this->loadSubCommand(new InfoSubCommand($plugin, "info"));
-		$this->loadSubCommand(new DescriptionSubCommand($plugin, "description"));
 		$this->loadSubCommand(new AddHelperSubCommand($plugin, "addhelper"));
-		$this->loadSubCommand(new RemoveHelperSubCommand($plugin, "removehelper"));
 		$this->loadSubCommand(new AutoSubCommand($plugin, "auto"));
+        $this->loadSubCommand(new BiomeSubCommand($plugin, "biome"));
+        $this->loadSubCommand(new BorderSubCommand($plugin, "border"));
+        if($plugin->getEconomyProvider() !== null) {
+            $this->loadSubCommand(new BuySubCommand($plugin, "buy"));
+        }
+        $this->loadSubCommand(new ChatSubCommand($plugin, "chat"));
+        $this->loadSubCommand(new ClaimSubCommand($plugin, "claim"));
 		$this->loadSubCommand(new ClearSubCommand($plugin, "clear"));
+        $styler = $this->getPlugin()->getServer()->getPluginManager()->getPlugin("WorldStyler");
+        if($styler !== null) {
+            $this->loadSubCommand(new CloneSubCommand($plugin, "clone"));
+        }
+        $this->loadSubCommand(new DenyPlayerSubCommand($plugin, "denyplayer"));
+        $this->loadSubCommand(new DescriptionSubCommand($plugin, "description"));
 		$this->loadSubCommand(new DisposeSubCommand($plugin, "dispose"));
-		$this->loadSubCommand(new ResetSubCommand($plugin, "reset"));
-		$this->loadSubCommand(new BiomeSubCommand($plugin, "biome"));
-		$this->loadSubCommand(new HomeSubCommand($plugin, "home"));
-		$this->loadSubCommand(new HomesSubCommand($plugin, "homes"));
-		$this->loadSubCommand(new NameSubCommand($plugin, "name"));
-		$this->loadSubCommand(new GiveSubCommand($plugin, "give"));
-		$this->loadSubCommand(new WarpSubCommand($plugin, "warp"));
-		$this->loadSubCommand(new MiddleSubCommand($plugin, "middle"));
-		$this->loadSubCommand(new DenyPlayerSubCommand($plugin, "denyplayer"));
-		$this->loadSubCommand(new UnDenySubCommand($plugin, "undenyplayer"));
-		$this->loadSubCommand(new SetOwnerSubCommand($plugin, "setowner"));
+        $this->loadSubCommand(new GenerateSubCommand($plugin, "generate"));
+        $this->loadSubCommand(new GiveSubCommand($plugin, "give"));
+        $this->loadSubCommand(new HelpSubCommand($plugin, "help", $this));
+        $this->loadSubCommand(new HomeSubCommand($plugin, "home"));
+        $this->loadSubCommand(new HomesSubCommand($plugin, "homes"));
+        $this->loadSubCommand(new InfoSubCommand($plugin, "info"));
+        $this->loadSubCommand(new KickSubCommand($plugin, "kick"));
 		$this->loadSubCommand(new ListSubCommand($plugin, "list"));
+        $this->loadSubCommand(new MiddleSubCommand($plugin, "middle"));
+        $this->loadSubCommand(new NameSubCommand($plugin, "name"));
 		$this->loadSubCommand(new PvpSubCommand($plugin, "pvp"));
-		$this->loadSubCommand(new KickSubCommand($plugin, "kick"));
+        $this->loadSubCommand(new RemoveHelperSubCommand($plugin, "removehelper"));
+        $this->loadSubCommand(new ResetSubCommand($plugin, "reset"));
+        if($plugin->getEconomyProvider() !== null) {
+            $this->loadSubCommand(new SellSubCommand($plugin, "sell"));
+        }
+        $this->loadSubCommand(new SetOwnerSubCommand($plugin, "setowner"));
+        $this->loadSubCommand(new SpawnSubCommand($plugin, "spawn"));
+        $this->loadSubCommand(new UnDenySubCommand($plugin, "undenyplayer"));
         $this->loadSubCommand(new WallSubCommand($plugin, "wall"));
-		if($plugin->getEconomyProvider() !== null) {
-			$this->loadSubCommand(new SellSubCommand($plugin, "sell"));
-			$this->loadSubCommand(new BuySubCommand($plugin, "buy"));
-		}
-		$styler = $this->getPlugin()->getServer()->getPluginManager()->getPlugin("WorldStyler");
-		if($styler !== null) {
-			$this->loadSubCommand(new CloneSubCommand($plugin, "clone"));
-		}
+        $this->loadSubCommand(new WarpSubCommand($plugin, "warp"));
 		$plugin->getLogger()->debug("Commands Registered to MyPlot");
 
 		$autofill = $plugin->getServer()->getPluginManager()->getPlugin("EasyCommandAutofill");

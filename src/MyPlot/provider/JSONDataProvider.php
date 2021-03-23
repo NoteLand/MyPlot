@@ -4,6 +4,7 @@ namespace MyPlot\provider;
 
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+use pocketmine\level\Position;
 use pocketmine\utils\Config;
 
 class JSONDataProvider extends DataProvider {
@@ -26,12 +27,17 @@ class JSONDataProvider extends DataProvider {
 
 	public function savePlot(Plot $plot) : bool {
 		$plots = $this->json->get("plots", []);
+		if ($plot->spawn === null) {
+		    $spawn = "false";
+        } else {
+		    $spawn = $plot->spawn->getFloorX() . ";" . $plot->spawn->getFloorY() . ";" . $plot->spawn->getFloorZ();
+        }
 		if($plot->id > -1) {
-			$plots[$plot->id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "description" => $plot->description, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price];
+			$plots[$plot->id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "description" => $plot->description, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price, "merged_plots" => $plot->merged_plots, "flags" => $plot->flags, "spawn" => $spawn, "chat" => $plot->chat];
 		}else{
 			$id = $this->json->get("count", 0) + 1;
 			$plot->id = $id;
-			$plots[$id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "description" => $plot->description, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price];
+			$plots[$id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "description" => $plot->description, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price, "merged_plots" => $plot->merged_plots, "flags" => $plot->flags, "spawn" => $spawn, "chat" => $plot->chat];
 			$this->json->set("count", $id);
 		}
 		$this->json->set("plots", $plots);
@@ -82,8 +88,18 @@ class JSONDataProvider extends DataProvider {
 			$denied = (array)$plots[$key]["denied"];
 			$biome = strtoupper($plots[$key]["biome"]);
 			$pvp = (bool)$plots[$key]["pvp"];
-			$price = (float)$plots[$key]["price"];
-			return new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $key);
+            $price = (float)$plots[$key]["price"];
+            $merged_plots = (array)$plots[$key]["merged_plots"];
+            $flags = (array)$plots[$key]["flags"];
+            $spawn = (string)$plots[$key]["spawn"];
+            if ($spawn === "false") {
+                $spawn = null;
+            } else {
+                $spawn = explode(";", $spawn);
+                $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
+            }
+            $chat = (bool)$plots[$key]["chat"];
+			return new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $spawn, $chat, $key);
 		}
 		return new Plot($levelName, $X, $Z);
 	}
@@ -115,7 +131,17 @@ class JSONDataProvider extends DataProvider {
 						$biome = strtoupper($plots[$levelKey]["biome"]) == "PLAINS" ? "PLAINS" : strtoupper($plots[$levelKey]["biome"]);
 						$pvp = $plots[$levelKey]["pvp"] == null ? false : $plots[$levelKey]["pvp"];
 						$price = $plots[$levelKey]["price"] == null ? 0.0 : $plots[$levelKey]["price"];
-						$ownerPlots[] = new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $levelKey);
+                        $merged_plots = $plots[$levelKey]["merged_plots"] == [] ? [] : $plots[$levelKey]["merged_plots"];
+                        $flags = $plots[$levelKey]["flags"] == [] ? [] : $plots[$levelKey]["flags"];
+                        $spawn = $plots[$levelKey]["spawn"] == "false" ? "false" : $plots[$levelKey]["spawn"];
+                        if ($spawn === "false") {
+                            $spawn = null;
+                        } else {
+                            $spawn = explode(";", $spawn);
+                            $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
+                        }
+                        $chat = $plots[$levelKey]["chat"] == false ? false : $plots[$levelKey]["chat"];
+						$ownerPlots[] = new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $spawn, $chat, $levelKey);
 					}
 				}
 			}
@@ -134,7 +160,17 @@ class JSONDataProvider extends DataProvider {
 				$biome = strtoupper($plots[$key]["biome"]) == "PLAINS" ? "PLAINS" : strtoupper($plots[$key]["biome"]);
 				$pvp = $plots[$key]["pvp"] == null ? false : $plots[$key]["pvp"];
 				$price = $plots[$key]["price"] == null ? 0.0 : $plots[$key]["price"];
-				$ownerPlots[] = new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $key);
+                $merged_plots = $plots[$key]["merged_plots"] == [] ? [] : $plots[$key]["merged_plots"];
+                $flags = $plots[$key]["flags"] == [] ? [] : $plots[$key]["flags"];
+                $spawn = $plots[$key]["spawn"] == "false" ? "false" : $plots[$key]["spawn"];
+                if ($spawn === "false") {
+                    $spawn = null;
+                } else {
+                    $spawn = explode(";", $spawn);
+                    $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
+                }
+                $chat = $plots[$key]["chat"] == false ? false : $plots[$key]["chat"];
+				$ownerPlots[] = new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $spawn, $chat, $key);
 			}
 		}
 		return $ownerPlots;

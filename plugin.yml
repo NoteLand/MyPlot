@@ -76,6 +76,10 @@ permissions:
         default: true
       myplot.command.description:
         default: true
+      myplot.command.spawn:
+        default: true
+      myplot.command.chat:
+        default: true
   myplot.admin:
     default: op
     children:
@@ -133,6 +137,10 @@ permissions:
       myplot.admin.wall:
         default: op
       myplot.admin.description:
+        default: op
+      myplot.admin.spawn:
+        default: op
+      myplot.admin.chat:
         default: op
   myplot.claimplots:
     default: op

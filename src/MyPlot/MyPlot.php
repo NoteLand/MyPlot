@@ -13,6 +13,7 @@ use MyPlot\events\MyPlotGenerationEvent;
 use MyPlot\events\MyPlotResetEvent;
 use MyPlot\events\MyPlotSettingEvent;
 use MyPlot\events\MyPlotTeleportEvent;
+use MyPlot\listeners\PlayerChatListener;
 use MyPlot\provider\DataProvider;
 use MyPlot\provider\EconomyProvider;
 use MyPlot\provider\EconomySProvider;
@@ -453,21 +454,28 @@ class MyPlot extends PluginBase
 	 *
 	 * @return bool
 	 */
-	public function teleportPlayerToPlot(Player $player, Plot $plot, bool $center = false) : bool {
-		$ev = new MyPlotTeleportEvent($plot, $player, $center);
-		$ev->call();
-		if($ev->isCancelled()) {
-			return false;
-		}
-		if($center)
-			return $this->teleportMiddle($player, $plot);
-		$plotLevel = $this->getLevelSettings($plot->levelName);
-		$pos = $this->getPlotPosition($plot);
-		$pos->x += floor($plotLevel->plotSize / 2);
-		$pos->y += 1.5;
-		$pos->z -= 1;
-		return $player->teleport($pos);
-	}
+    public function teleportPlayerToPlot(Player $player, Plot $plot, bool $center = false) : bool {
+        $ev = new MyPlotTeleportEvent($plot, $player, $center);
+        $ev->call();
+        if($ev->isCancelled()) {
+            return false;
+        }
+        if($center)
+            return $this->teleportMiddle($player, $plot);
+        $plotLevel = $this->getLevelSettings($plot->levelName);
+        if($plotLevel === null)
+            return false;
+
+        if ($plot->spawn === null) {
+            $pos = $this->getPlotPosition($plot);
+            $pos->x += floor($plotLevel->plotSize / 2);
+            $pos->y += 1.5;
+            $pos->z -= 1;
+        } else {
+            $pos = $plot->spawn;
+        }
+        return $player->teleport($pos);
+    }
 
 	/**
 	 * Claims a plot in a players name
@@ -1026,22 +1034,14 @@ class MyPlot extends PluginBase
 		/** @var string $lang */
 		$lang = $this->getConfig()->get("Language", BaseLang::FALLBACK_LANGUAGE);
 		if((bool) $this->getConfig()->get("Custom Messages", false)) {
-			if(!file_exists($this->getDataFolder()."lang.ini")) {
-				/** @var string|resource $resource */
-				$resource = $this->getResource($lang.".ini") ?? file_get_contents($this->getFile()."resources/".BaseLang::FALLBACK_LANGUAGE.".ini");
-				file_put_contents($this->getDataFolder()."lang.ini", $resource);
-				if(!is_string($resource)) {
-					/** @var resource $resource */
-					fclose($resource);
-				}
-				$this->saveResource(BaseLang::FALLBACK_LANGUAGE.".ini", true);
+			if(!file_exists($this->getDataFolder()."eng.ini")) {
+				$this->saveResource("eng.ini", true);
 				$this->getLogger()->debug("Custom Language ini created");
 			}
-			$this->baseLang = new BaseLang("lang", $this->getDataFolder());
+			$this->baseLang = new BaseLang("eng", $this->getDataFolder());
 		}else{
-			if(file_exists($this->getDataFolder()."lang.ini")) {
-				unlink($this->getDataFolder()."lang.ini");
-				unlink($this->getDataFolder().BaseLang::FALLBACK_LANGUAGE.".ini");
+			if(file_exists($this->getDataFolder()."eng.ini")) {
+				unlink($this->getDataFolder()."eng.ini");
 				$this->getLogger()->debug("Custom Language ini deleted");
 			}
 			$this->baseLang = new BaseLang($lang, $this->getFile() . "resources/");
@@ -1120,6 +1120,8 @@ class MyPlot extends PluginBase
 
 	public function onEnable() : void {
 		$this->getLogger()->debug(TF::BOLD . "Loading Events");
+
+        $this->getServer()->getPluginManager()->registerEvents(new PlayerChatListener(), $this);
 		$eventListener = new EventListener($this);
 		$this->getServer()->getPluginManager()->registerEvents($eventListener, $this);
 		$this->getLogger()->debug(TF::BOLD . "Registering Loaded Levels");
@@ -1128,7 +1130,10 @@ class MyPlot extends PluginBase
 		}
 		$this->getLogger()->debug(TF::BOLD.TF::GREEN."Enabled!");
 
-        foreach ($this->getConfig()->get("borders", []) as $name => $data) {
+		$this->saveResource("plotsquaredpm.yml");
+
+		$plotsquared = new Config($this->getDataFolder() . "plotsquaredpm.yml");
+        foreach ($plotsquared->get("borders", []) as $name => $data) {
             $block = explode(':', $data);
             if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
                 $block = BlockFactory::get((int) $block[0], (int) $block[1]);
@@ -1136,7 +1141,7 @@ class MyPlot extends PluginBase
             }
         }
 
-        foreach ($this->getConfig()->get("walls", []) as $name => $data) {
+        foreach ($plotsquared->get("walls", []) as $name => $data) {
             $block = explode(':', $data);
             if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
                 $block = BlockFactory::get((int) $block[0], (int) $block[1]);
@@ -1144,7 +1149,7 @@ class MyPlot extends PluginBase
             }
         }
 
-        self::$prefix = $this->getConfig()->get("prefix", "§l§aP2 §r");
+        self::$prefix = $plotsquared->get("prefix", "§l§aP2 §r");
 	}
 
 	public function addLevelSettings(string $levelName, PlotLevelSettings $settings) : bool {

@@ -107,37 +107,3 @@ DefaultWorld:
   PlotFillBlock: '3:0'
   # The block at the bottom (Default is Bedrock)
   BottomBlock: '7:0'
-
-borders:
-  Holzstufe: "158:0"
-  Quartzstufe: "44:6"
-  Steinstufe: "44:0"
-  Fackeln: "50:0"
-  Kohleblock: "173:0"
-  Eisenblock: "42:0"
-  Goldblock: "41:0"
-  Lapisblock: "22:0"
-  Redstone Block: "152:0"
-  Diamant Block: "57:0"
-  Smaragd Block: "133:0"
-  Leer: "0:0"
-  Redstone Fackeln: "76:0"
-  Jukebox: "84:0"
-  Netherstein: "87:0"
-  Glowstone: "89:0"
-  Seelensand: "88:0"
-  Obsidian: "49:0"
-  Endstein: "121:0"
-  Bedrock: "7:0"
-  Beacon: "138:0"
-  Drachenei: "122:0"
-  Spawner: "52:0"
-  Kuchen: "92:0"
-  Stevekopf: "144:3"
-  Hecke: "18:4"
-
-walls:
-  Erde: "3:0"
-  Glas: "20:0"
-
-prefix: "§l§aP2 §r"

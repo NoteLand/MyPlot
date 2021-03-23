@@ -4,6 +4,7 @@ namespace MyPlot\provider;
 
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+use pocketmine\level\Position;
 
 class SQLiteDataProvider extends DataProvider
 {
@@ -37,7 +38,7 @@ class SQLiteDataProvider extends DataProvider
 		$this->db = new \SQLite3($this->plugin->getDataFolder() . "plots.db");
 		$this->db->exec("CREATE TABLE IF NOT EXISTS plots
 			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, description TEXT, name TEXT,
-			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INTEGER, price FLOAT);");
+			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INTEGER, price FLOAT, merged_plots TEXT, flags TEXT, spawn TEXT, chat INTEGER);");
 		try{
 			$this->db->exec("ALTER TABLE plots ADD pvp INTEGER;");
 		}catch(\Exception $e) {
@@ -53,17 +54,37 @@ class SQLiteDataProvider extends DataProvider
         }catch(\Exception $e) {
             // nothing :P
         }
-		$stmt = $this->db->prepare("SELECT id, description, name, owner, helpers, denied, biome, pvp, price FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
+        try{
+            $this->db->exec("ALTER TABLE plots ADD merged_plots TEXT;");
+        }catch(\Exception $e) {
+            // nothing :P
+        }
+        try{
+            $this->db->exec("ALTER TABLE plots ADD flags TEXT;");
+        }catch(\Exception $e) {
+            // nothing :P
+        }
+        try{
+            $this->db->exec("ALTER TABLE plots ADD spawn TEXT;");
+        }catch(\Exception $e) {
+            // nothing :P
+        }
+        try{
+            $this->db->exec("ALTER TABLE plots ADD chat INT;");
+        }catch(\Exception $e) {
+            // nothing :P
+        }
+		$stmt = $this->db->prepare("SELECT id, description, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags, spawn, chat FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlGetPlot = $stmt;
-		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plots (id, level, X, Z, description, name, owner, helpers, denied, biome, pvp, price) VALUES
+		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plots (id, level, X, Z, description, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags, spawn, chat) VALUES
 			((SELECT id FROM plots WHERE level = :level AND X = :X AND Z = :Z),
-			 :level, :X, :Z, :description, :name, :owner, :helpers, :denied, :biome, :pvp, :price);");
+			 :level, :X, :Z, :description, :name, :owner, :helpers, :denied, :biome, :pvp, :price, :merged_plots, :flags, :spawn, :chat);");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlSavePlot = $stmt;
-		$stmt = $this->db->prepare("UPDATE plots SET description = :description, name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome, pvp = :pvp, price = :price WHERE id = :id;");
+		$stmt = $this->db->prepare("UPDATE plots SET description = :description, name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome, pvp = :pvp, price = :price, merged_plots = :merged_plots, flags = :flags, spawn = :spawn, chat = :chat WHERE id = :id;");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlSavePlotById = $stmt;
@@ -99,7 +120,9 @@ class SQLiteDataProvider extends DataProvider
 	public function savePlot(Plot $plot) : bool {
 		$helpers = implode(",", $plot->helpers);
 		$denied = implode(",", $plot->denied);
-		if($plot->id >= 0) {
+        $merged_plots = implode(",", $plot->merged_plots);
+        $flags = implode(",", $plot->flags);
+        if($plot->id >= 0) {
 			$stmt = $this->sqlSavePlotById;
 			$stmt->bindValue(":id", $plot->id, SQLITE3_INTEGER);
 		}else{
@@ -116,6 +139,15 @@ class SQLiteDataProvider extends DataProvider
 		$stmt->bindValue(":biome", $plot->biome, SQLITE3_TEXT);
 		$stmt->bindValue(":pvp", $plot->pvp, SQLITE3_INTEGER);
 		$stmt->bindValue(":price", $plot->price, SQLITE3_FLOAT);
+        $stmt->bindValue(":merged_plots", $merged_plots, SQLITE3_TEXT);
+        $stmt->bindValue(":flags", $flags, SQLITE3_TEXT);
+        if ($plot->spawn instanceof Position) {
+            $spawn = $plot->spawn->getFloorX() . ";" . $plot->spawn->getFloorY() . ";" . $plot->spawn->getFloorZ();
+        } else {
+            $spawn = "false";
+        }
+        $stmt->bindValue(":spawn", $spawn, SQLITE3_TEXT);
+        $stmt->bindValue(":chat", $plot->chat, SQLITE3_INTEGER);
 		$stmt->reset();
 		$result = $stmt->execute();
 		if(!$result instanceof \SQLite3Result) {
@@ -166,7 +198,24 @@ class SQLiteDataProvider extends DataProvider
 				$denied = explode(",", (string) $val["denied"]);
 			}
 			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
-			$plot = new Plot($levelName, $X, $Z, (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
+            if($val["merged_plots"] === null or $val["merged_plots"] === "") {
+                $merged_plots = [];
+            }else{
+                $merged_plots = explode(",", (string) $val["merged_plots"]);
+            }
+            if($val["flags"] === null or $val["flags"] === "") {
+                $flags = [];
+            }else{
+                $flags = explode(",", (string) $val["flags"]);
+            }
+            if ($val["spawn"] === "false" or $val["spawn"] === null) {
+                $spawn = null;
+            } else {
+                $spawn = explode(";", (string) $val["spawn"]);
+                $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
+            }
+            $chat = is_numeric($val["chat"]) ? (bool)$val["chat"] : false;
+			$plot = new Plot($levelName, $X, $Z, (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], $merged_plots, $flags, $spawn, $chat, (int) $val["id"]);
 		}else{
 			$plot = new Plot($levelName, $X, $Z);
 		}
@@ -195,7 +244,16 @@ class SQLiteDataProvider extends DataProvider
 			$helpers = explode(",", (string) $val["helpers"]);
 			$denied = explode(",", (string) $val["denied"]);
 			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
-			$plots[] = new Plot((string) $val["level"], (int) $val["X"], (int) $val["Z"], (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], (int) $val["id"]);
+            $merged_plots = explode(",", (string) $val["merged_plots"]);
+            $flags = explode(",", (string) $val["flags"]);
+            $chat = is_numeric($val["chat"]) ? (bool)$val["chat"] : false;
+            if ($val["spawn"] === "false" or $val["spawn"] === null) {
+                $spawn = null;
+            } else {
+                $spawn = explode(";", (string) $val["spawn"]);
+                $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
+            }
+			$plots[] = new Plot((string) $val["level"], (int) $val["X"], (int) $val["Z"], (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], $merged_plots, $flags, $spawn, $chat, (int) $val["id"]);
 		}
 		// Remove unloaded plots
 		$plots = array_filter($plots, function(Plot $plot) : bool {

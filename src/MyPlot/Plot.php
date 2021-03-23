@@ -2,12 +2,11 @@
 declare(strict_types=1);
 namespace MyPlot;
 
+use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 
 class Plot
 {
-
-    #ToDo: Add description
 
 	/** @var string $levelName */
 	public $levelName = "";
@@ -31,6 +30,14 @@ class Plot
 	public $pvp = true;
 	/** @var float $price */
 	public $price = 0.0;
+    /** @var array $merged_plots */
+	public $merged_plots = [];
+    /** @var array $flags */
+    public $flags = [];
+    /** @var Position|null $spawn */
+    public $spawn = null;
+    /** @var bool $chat */
+    public $chat = false;
 	/** @var int $id */
 	public $id = -1;
 
@@ -48,9 +55,13 @@ class Plot
 	 * @param string $biome
 	 * @param bool|null $pvp
 	 * @param float $price
+     * @param array $merged_plots
+     * @param array $flags
+     * @param Position|null $spawn
+     * @param bool $chat
 	 * @param int $id
 	 */
-	public function __construct(string $levelName, int $X, int $Z, string $description = "", string $name = "", string $owner = "", array $helpers = [], array $denied = [], string $biome = "PLAINS", ?bool $pvp = null, float $price = -1, int $id = -1) {
+	public function __construct(string $levelName, int $X, int $Z, string $description = "", string $name = "", string $owner = "", array $helpers = [], array $denied = [], string $biome = "PLAINS", ?bool $pvp = null, float $price = -1, array $merged_plots = [], array $flags = [], ?Position $spawn = null, bool $chat = false, int $id = -1) {
 		$this->levelName = $levelName;
 		$this->X = $X;
 		$this->Z = $Z;
@@ -60,12 +71,21 @@ class Plot
 		$this->helpers = $helpers;
 		$this->denied = $denied;
 		$this->biome = strtoupper($biome);
+		if (MyPlot::getInstance()->isLevelLoaded($levelName)) {
+            $settings = MyPlot::getInstance()->getLevelSettings($levelName);
+        } else {
+            $settings = new PlotLevelSettings($levelName, ["Fake" => '5:0']);
+        }
 		if(!isset($pvp)) {
-			$this->pvp = false;
+			$this->pvp = !$settings->restrictPVP;
 		}else{
 			$this->pvp = $pvp;
 		}
-		$this->price = $price < 0 ? 0 : $price;
+		$this->price = $price < 0 ? $settings->claimPrice : $price;
+		$this->merged_plots = $merged_plots;
+		$this->flags = $flags;
+		$this->spawn = $spawn;
+		$this->chat = $chat;
 		$this->id = $id;
 	}
 
@@ -160,6 +180,52 @@ class Plot
 		unset($this->denied[$key]);
 		return true;
 	}
+
+    /**
+     * @api
+     *
+     * @param string $flag
+     *
+     * @return bool
+     */
+    public function isFlag(string $flag) : bool {
+        return in_array($flag, $this->flags, true);
+    }
+
+    /**
+     * @api
+     *
+     * @param string $flag
+     *
+     * @return bool
+     */
+    public function addFlag(string $flag) : bool {
+        if(!$this->isFlag($flag)) {
+            $this->removeFlag($flag);
+            $this->flags[] = $flag;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @api
+     *
+     * @param string $flag
+     *
+     * @return bool
+     */
+    public function removeFlag(string $flag) : bool {
+        if(!$this->isFlag($flag)) {
+            return false;
+        }
+        $key = array_search($flag, $this->flags, true);
+        if($key === false) {
+            return false;
+        }
+        unset($this->flags[$key]);
+        return true;
+    }
 
 	/**
 	 * @api
