@@ -8,6 +8,8 @@
 - [x] /p merge (not published yet, but finished)
 - [ ] /p flags
 - [x] /p home "name"
+- [x] /p wall
+- [x] /p border (+ClaimBorder)
 
 ### Spoiler
 [![Youtube Video Example](https://youtu.be/P8ZqvTlk3fc/0.jpg)](https://youtu.be/P8ZqvTlk3fc)

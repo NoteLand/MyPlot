@@ -21,6 +21,7 @@ use MyPlot\provider\JSONDataProvider;
 use MyPlot\provider\MySQLProvider;
 use MyPlot\provider\SQLiteDataProvider;
 use MyPlot\provider\YAMLDataProvider;
+use MyPlot\task\ChangeBorderTask;
 use MyPlot\task\ClearBorderTask;
 use MyPlot\task\ClearPlotTask;
 use MyPlot\utils\Border;
@@ -501,6 +502,13 @@ class MyPlot extends PluginBase
 		if($plotName !== "") {
 			$this->renamePlot($plot, $plotName);
 		}
+        $plotsquared = new Config($this->getDataFolder() . "plotsquaredpm.yml");
+        $block = explode(':', $plotsquared->get("ClaimBorder", "44:6"));
+        if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
+            $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+            $block = new Border("Border", $block);
+            MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, $block));
+        }
 		return $this->savePlot($plot);
 	}
 
@@ -733,6 +741,9 @@ class MyPlot extends PluginBase
 		if($ev->isCancelled()) {
 			return false;
 		}
+		$resetBorder = self::getInstance()->getLevelSettings($plot->levelName)->wallBlock;
+        $resetBorder = new Border("Border", $resetBorder);
+        MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, $resetBorder));
 		return $this->dataProvider->deletePlot($plot);
 	}
 
