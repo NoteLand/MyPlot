@@ -121,7 +121,7 @@ class SQLiteDataProvider extends DataProvider
 		$helpers = implode(",", $plot->helpers);
 		$denied = implode(",", $plot->denied);
         $merged_plots = implode(",", $plot->merged_plots);
-        $flags = implode(",", $plot->flags);
+        $flags = json_encode($plot->flags, JSON_FORCE_OBJECT);
         if($plot->id >= 0) {
 			$stmt = $this->sqlSavePlotById;
 			$stmt->bindValue(":id", $plot->id, SQLITE3_INTEGER);
@@ -203,11 +203,9 @@ class SQLiteDataProvider extends DataProvider
             }else{
                 $merged_plots = explode(",", (string) $val["merged_plots"]);
             }
-            if($val["flags"] === null or $val["flags"] === "") {
+            if ($val['flags'] === '{}' or $val['flags'] === '' or $val['flags'] === null) {
                 $flags = [];
-            }else{
-                $flags = explode(",", (string) $val["flags"]);
-            }
+            } else $flags = json_decode($val['flags'], true);
             if ($val["spawn"] === "false" or $val["spawn"] === null) {
                 $spawn = null;
             } else {
@@ -245,7 +243,9 @@ class SQLiteDataProvider extends DataProvider
 			$denied = explode(",", (string) $val["denied"]);
 			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
             $merged_plots = explode(",", (string) $val["merged_plots"]);
-            $flags = explode(",", (string) $val["flags"]);
+            if ($val['flags'] === '{}' or $val['flags'] === '' or $val['flags'] === null) {
+                $flags = [];
+            } else $flags = json_decode($val['flags'], true);
             $chat = is_numeric($val["chat"]) ? (bool)$val["chat"] : false;
             if ($val["spawn"] === "false" or $val["spawn"] === null) {
                 $spawn = null;

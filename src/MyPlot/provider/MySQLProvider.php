@@ -80,7 +80,7 @@ class MySQLProvider extends DataProvider {
 		$helpers = implode(',', $plot->helpers);
 		$denied = implode(',', $plot->denied);
         $merged_plots = implode(',', $plot->merged_plots);
-        $flags = implode(',', $plot->flags);
+        $flags = json_encode($plot->flags, JSON_FORCE_OBJECT);
         if ($plot->spawn instanceof Position) {
             $spawn = $plot->spawn->getFloorX() . ";" . $plot->spawn->getFloorY() . ";" . $plot->spawn->getFloorZ();
         } else {
@@ -151,11 +151,9 @@ class MySQLProvider extends DataProvider {
             }else{
                 $merged_plots = explode(",", (string) $val["merged_plots"]);
             }
-            if($val["flags"] === '') {
+            if ($val['flags'] === '{}' or $val['flags'] === '') {
                 $flags = [];
-            }else{
-                $flags = explode(",", (string) $val["flags"]);
-            }
+            } else $flags = json_decode($val['flags'], true);
             if ($val["spawn"] === "false") {
                 $spawn = null;
             } else {
@@ -198,7 +196,9 @@ class MySQLProvider extends DataProvider {
 			$denied = explode(",", (string) $val["denied"]);
 			$pvp = is_numeric($val["pvp"]) ? (bool)$val["pvp"] : null;
             $merged_plots = explode(",", (string) $val["merged_plots"]);
-            $flags = explode(",", (string) $val["flags"]);
+            if ($val['flags'] === '{}' or $val['flags'] === '') {
+                $flags = [];
+            } else $flags = json_decode($val['flags'], true);
             $chat = is_numeric($val["chat"]) ? (bool)$val["chat"] : false;
             if ($val["spawn"] === "false") {
                 $spawn = null;
