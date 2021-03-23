@@ -1,6 +1,6 @@
 # PlotSquaredPM, a fork of MyPlot
 
-###Features
+### Features
 
 - [x] /p description
 - [x] /p chat
