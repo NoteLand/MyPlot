@@ -184,28 +184,26 @@ class Plot
     /**
      * @api
      *
-     * @param string $flag
+     * @param string $flag_name
      *
-     * @return bool
+     * @return false|mixed
      */
-    public function isFlag(string $flag) : bool {
-        return in_array($flag, $this->flags, true);
+    public function getFlag(string $flag_name) {
+        if (isset($this->flags[$flag_name])) return $this->flags[$flag_name];
+        return false;
     }
 
     /**
      * @api
      *
      * @param string $flag
-     *
+     * @param $value
+     * 
      * @return bool
      */
-    public function addFlag(string $flag) : bool {
-        if(!$this->isFlag($flag)) {
-            $this->removeFlag($flag);
-            $this->flags[] = $flag;
-            return true;
-        }
-        return false;
+    public function setFlag(string $flag, $value) : bool {
+        $this->flags[$flag] = $value;
+        return true;
     }
 
     /**
@@ -216,14 +214,10 @@ class Plot
      * @return bool
      */
     public function removeFlag(string $flag) : bool {
-        if(!$this->isFlag($flag)) {
+        if(!$this->getFlag($flag)) {
             return false;
         }
-        $key = array_search($flag, $this->flags, true);
-        if($key === false) {
-            return false;
-        }
-        unset($this->flags[$key]);
+        unset($this->flags[$flag]);
         return true;
     }
 
