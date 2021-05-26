@@ -228,7 +228,7 @@ class Commands extends PluginCommand
 		/** @var MyPlot $plugin */
 		$plugin = $this->getPlugin();
 		if($plugin->isDisabled()) {
-			$sender->sendMessage($plugin->getLanguage()->get("plugin.disabled"));
+			$sender->sendMessage(MyPlot::getPrefix() . $plugin->getLanguage()->get("plugin.disabled"));
 			return true;
 		}
 		if(!isset($args[0])) {
@@ -244,7 +244,7 @@ class Commands extends PluginCommand
 		}elseif(isset($this->aliasSubCommands[$subCommand])) {
 			$command = $this->aliasSubCommands[$subCommand];
 		}else{
-			$sender->sendMessage(TextFormat::RED . $plugin->getLanguage()->get("command.unknown"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $plugin->getLanguage()->get("command.unknown"));
 			return true;
 		}
 		if($command->canUse($sender)) {
@@ -253,7 +253,7 @@ class Commands extends PluginCommand
 				$sender->sendMessage($usage);
 			}
 		}else{
-			$sender->sendMessage(TextFormat::RED . $plugin->getLanguage()->get("command.unknown"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $plugin->getLanguage()->get("command.unknown"));
 		}
 		return true;
 	}

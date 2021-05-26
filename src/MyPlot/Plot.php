@@ -198,7 +198,7 @@ class Plot
      *
      * @param string $flag
      * @param $value
-     * 
+     *
      * @return bool
      */
     public function setFlag(string $flag, $value) : bool {
