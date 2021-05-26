@@ -37,6 +37,10 @@ class WallForm extends SimpleMyPlotForm
                     $submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("notinplot"));
                     return;
                 }
+                if($plot->owner !== $submitter->getName() and !$submitter->hasPermission("myplot.admin.wall")) {
+                    $submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("notowner"));
+                    return;
+                }
                 MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeWallTask($plot, $wall, $submitter));
             }
         );

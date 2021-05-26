@@ -37,6 +37,10 @@ class BorderForm extends SimpleMyPlotForm
                     $submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("notinplot"));
                     return;
                 }
+                if($plot->owner !== $submitter->getName() and !$submitter->hasPermission("myplot.admin.border")) {
+                    $submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("notowner"));
+                    return;
+                }
                 MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, $border, $submitter));
             }
         );
