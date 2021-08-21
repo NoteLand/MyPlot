@@ -41,8 +41,16 @@ class SpawnSubCommand extends SubCommand
             $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("notowner"));
             return true;
         }
-        $plot->spawn = $sender->getPosition();
-        $this->getPlugin()->getProvider()->savePlot($plot);
+        if (isset($args[0])) {
+            if ($args[0] === "remove") {
+                $plot->removeFlag("spawn");
+                $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("spawn.reset"));
+                return true;
+            }
+        }
+        $position = $sender->getPosition();
+        $spawn = $position->getFloorX() . ";" . $position->getFloorY() . ";" . $position->getFloorZ();
+        $plot->setFlag("spawn", $spawn);
         $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("spawn.success"));
         return true;
     }
