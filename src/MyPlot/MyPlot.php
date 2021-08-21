@@ -510,7 +510,7 @@ class MyPlot extends PluginBase
         $block = explode(':', $plotsquared->get("ClaimBorder", "44:6"));
         if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
             $block = BlockFactory::get((int) $block[0], (int) $block[1]);
-            $block = new Border("Border", $block);
+            $block = new Border("Border", $block, "myplot.border.default");
             MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, $block));
         }
 		return $this->savePlot($plot);
