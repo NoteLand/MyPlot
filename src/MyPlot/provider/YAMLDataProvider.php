@@ -27,17 +27,12 @@ class YAMLDataProvider extends DataProvider {
 
 	public function savePlot(Plot $plot) : bool {
 		$plots = $this->yaml->get("plots", []);
-        if ($plot->spawn === null) {
-            $spawn = "false";
-        } else {
-            $spawn = $plot->spawn->getFloorX() . ";" . $plot->spawn->getFloorY() . ";" . $plot->spawn->getFloorZ();
-        }
 		if($plot->id > -1) {
-            $plots[$plot->id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "description" => $plot->description, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price, "merged_plots" => $plot->merged_plots, "flags" => $plot->flags, "spawn" => $spawn, "chat" => $plot->chat];
+            $plots[$plot->id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price, "merged_plots" => $plot->merged_plots, "flags" => $plot->flags];
         }else{
 			$id = $this->yaml->get("count", 0) + 1;
 			$plot->id = $id;
-            $plots[$id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "description" => $plot->description, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price, "merged_plots" => $plot->merged_plots, "flags" => $plot->flags, "spawn" => $spawn, "chat" => $plot->chat];
+            $plots[$id] = ["level" => $plot->levelName, "x" => $plot->X, "z" => $plot->Z, "name" => $plot->name, "owner" => $plot->owner, "helpers" => $plot->helpers, "denied" => $plot->denied, "biome" => $plot->biome, "pvp" => $plot->pvp, "price" => $plot->price, "merged_plots" => $plot->merged_plots, "flags" => $plot->flags];
             $this->yaml->set("count", $id);
 		}
 		$this->yaml->set("plots", $plots);
@@ -81,7 +76,6 @@ class YAMLDataProvider extends DataProvider {
 			}
 		}
 		if(is_int($key)) {
-            $description = (string)$plots[$key]["description"];
 			$plotName = (string)$plots[$key]["name"];
 			$owner = (string)$plots[$key]["owner"];
 			$helpers = (array)$plots[$key]["helpers"];
@@ -91,15 +85,7 @@ class YAMLDataProvider extends DataProvider {
             $price = (float)$plots[$key]["price"];
             $merged_plots = (array)$plots[$key]["merged_plots"];
             $flags = (array)$plots[$key]["flags"];
-            $spawn = (string)$plots[$key]["spawn"];
-            if ($spawn === "false") {
-                $spawn = null;
-            } else {
-                $spawn = explode(";", $spawn);
-                $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
-            }
-            $chat = (bool)$plots[$key]["chat"];
-            return new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $spawn, $chat, $key);
+            return new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $key);
 		}
 		return new Plot($levelName, $X, $Z);
 	}
@@ -123,7 +109,6 @@ class YAMLDataProvider extends DataProvider {
                     if($levelKey === $ownerKey) {
                         $X = $plots[$levelKey]["x"];
                         $Z = $plots[$levelKey]["z"];
-                        $description = $plots[$levelKey]["description"] == "" ? "" : $plots[$levelKey]["description"];
                         $plotName = $plots[$levelKey]["name"] == "" ? "" : $plots[$levelKey]["name"];
                         $owner = $plots[$levelKey]["owner"] == "" ? "" : $plots[$levelKey]["owner"];
                         $helpers = $plots[$levelKey]["helpers"] == [] ? [] : $plots[$levelKey]["helpers"];
@@ -133,15 +118,7 @@ class YAMLDataProvider extends DataProvider {
                         $price = $plots[$levelKey]["price"] == null ? 0.0 : $plots[$levelKey]["price"];
                         $merged_plots = $plots[$levelKey]["merged_plots"] == [] ? [] : $plots[$levelKey]["merged_plots"];
                         $flags = $plots[$levelKey]["flags"] == [] ? [] : $plots[$levelKey]["flags"];
-                        $spawn = $plots[$levelKey]["spawn"] == "false" ? "false" : $plots[$levelKey]["spawn"];
-                        if ($spawn === "false") {
-                            $spawn = null;
-                        } else {
-                            $spawn = explode(";", $spawn);
-                            $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
-                        }
-                        $chat = $plots[$levelKey]["chat"] == false ? false : $plots[$levelKey]["chat"];
-                        $ownerPlots[] = new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $spawn, $chat, $levelKey);
+                        $ownerPlots[] = new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $levelKey);
                     }
                 }
             }
@@ -152,7 +129,6 @@ class YAMLDataProvider extends DataProvider {
                 $levelName = $plots[$key]["level"];
                 $X = $plots[$key]["x"];
                 $Z = $plots[$key]["z"];
-                $description = $plots[$key]["description"] == "" ? "" : $plots[$key]["description"];
                 $plotName = $plots[$key]["name"] == "" ? "" : $plots[$key]["name"];
                 $owner = $plots[$key]["owner"] == "" ? "" : $plots[$key]["owner"];
                 $helpers = $plots[$key]["helpers"] == [] ? [] : $plots[$key]["helpers"];
@@ -162,15 +138,7 @@ class YAMLDataProvider extends DataProvider {
                 $price = $plots[$key]["price"] == null ? 0.0 : $plots[$key]["price"];
                 $merged_plots = $plots[$key]["merged_plots"] == [] ? [] : $plots[$key]["merged_plots"];
                 $flags = $plots[$key]["flags"] == [] ? [] : $plots[$key]["flags"];
-                $spawn = $plots[$key]["spawn"] == "false" ? "false" : $plots[$key]["spawn"];
-                if ($spawn === "false") {
-                    $spawn = null;
-                } else {
-                    $spawn = explode(";", $spawn);
-                    $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
-                }
-                $chat = $plots[$key]["chat"] == false ? false : $plots[$key]["chat"];
-                $ownerPlots[] = new Plot($levelName, $X, $Z, $description, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $spawn, $chat, $key);
+                $ownerPlots[] = new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $pvp, $price, $merged_plots, $flags, $key);
             }
         }
 		return $ownerPlots;

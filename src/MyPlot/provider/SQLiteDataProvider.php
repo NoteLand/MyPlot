@@ -37,8 +37,8 @@ class SQLiteDataProvider extends DataProvider
 		parent::__construct($plugin, $cacheSize);
 		$this->db = new \SQLite3($this->plugin->getDataFolder() . "plots.db");
 		$this->db->exec("CREATE TABLE IF NOT EXISTS plots
-			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, description TEXT, name TEXT,
-			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INTEGER, price FLOAT, merged_plots TEXT, flags TEXT, spawn TEXT, chat INTEGER);");
+			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, name TEXT,
+			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INTEGER, price FLOAT, merged_plots TEXT, flags TEXT);");
 		try{
 			$this->db->exec("ALTER TABLE plots ADD pvp INTEGER;");
 		}catch(\Exception $e) {
@@ -59,17 +59,17 @@ class SQLiteDataProvider extends DataProvider
         }catch(\Exception $e) {
             // nothing :P
         }
-		$stmt = $this->db->prepare("SELECT id, description, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags, spawn, chat FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
+		$stmt = $this->db->prepare("SELECT id, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlGetPlot = $stmt;
-		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plots (id, level, X, Z, description, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags, spawn, chat) VALUES
+		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plots (id, level, X, Z, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags) VALUES
 			((SELECT id FROM plots WHERE level = :level AND X = :X AND Z = :Z),
-			 :level, :X, :Z, :description, :name, :owner, :helpers, :denied, :biome, :pvp, :price, :merged_plots, :flags, :spawn, :chat);");
+			 :level, :X, :Z, :name, :owner, :helpers, :denied, :biome, :pvp, :price, :merged_plots, :flags);");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlSavePlot = $stmt;
-		$stmt = $this->db->prepare("UPDATE plots SET description = :description, name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome, pvp = :pvp, price = :price, merged_plots = :merged_plots, flags = :flags, spawn = :spawn, chat = :chat WHERE id = :id;");
+		$stmt = $this->db->prepare("UPDATE plots SET name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome, pvp = :pvp, price = :price, merged_plots = :merged_plots, flags = :flags WHERE id = :id;");
 		if($stmt === false)
 			throw new \Exception();
 		$this->sqlSavePlotById = $stmt;
@@ -116,7 +116,6 @@ class SQLiteDataProvider extends DataProvider
 			$stmt->bindValue(":X", $plot->X, SQLITE3_INTEGER);
 			$stmt->bindValue(":Z", $plot->Z, SQLITE3_INTEGER);
 		}
-		$stmt->bindValue(":description", $plot->description, SQLITE3_TEXT);
 		$stmt->bindValue(":name", $plot->name, SQLITE3_TEXT);
 		$stmt->bindValue(":owner", $plot->owner, SQLITE3_TEXT);
 		$stmt->bindValue(":helpers", $helpers, SQLITE3_TEXT);
@@ -126,13 +125,6 @@ class SQLiteDataProvider extends DataProvider
 		$stmt->bindValue(":price", $plot->price, SQLITE3_FLOAT);
         $stmt->bindValue(":merged_plots", $merged_plots, SQLITE3_TEXT);
         $stmt->bindValue(":flags", $flags, SQLITE3_TEXT);
-        if ($plot->spawn instanceof Position) {
-            $spawn = $plot->spawn->getFloorX() . ";" . $plot->spawn->getFloorY() . ";" . $plot->spawn->getFloorZ();
-        } else {
-            $spawn = "false";
-        }
-        $stmt->bindValue(":spawn", $spawn, SQLITE3_TEXT);
-        $stmt->bindValue(":chat", $plot->chat, SQLITE3_INTEGER);
 		$stmt->reset();
 		$result = $stmt->execute();
 		if(!$result instanceof \SQLite3Result) {
@@ -191,14 +183,7 @@ class SQLiteDataProvider extends DataProvider
             if ($val['flags'] === '{}' or $val['flags'] === '' or $val['flags'] === null) {
                 $flags = [];
             } else $flags = json_decode($val['flags'], true);
-            if ($val["spawn"] === "false" or $val["spawn"] === null) {
-                $spawn = null;
-            } else {
-                $spawn = explode(";", (string) $val["spawn"]);
-                $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
-            }
-            $chat = is_numeric($val["chat"]) ? (bool)$val["chat"] : false;
-			$plot = new Plot($levelName, $X, $Z, (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], $merged_plots, $flags, $spawn, $chat, (int) $val["id"]);
+			$plot = new Plot($levelName, $X, $Z, (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], $merged_plots, $flags, (int) $val["id"]);
 		}else{
 			$plot = new Plot($levelName, $X, $Z);
 		}
@@ -231,14 +216,7 @@ class SQLiteDataProvider extends DataProvider
             if ($val['flags'] === '{}' or $val['flags'] === '' or $val['flags'] === null) {
                 $flags = [];
             } else $flags = json_decode($val['flags'], true);
-            $chat = is_numeric($val["chat"]) ? (bool)$val["chat"] : false;
-            if ($val["spawn"] === "false" or $val["spawn"] === null) {
-                $spawn = null;
-            } else {
-                $spawn = explode(";", (string) $val["spawn"]);
-                $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($levelName));
-            }
-			$plots[] = new Plot((string) $val["level"], (int) $val["X"], (int) $val["Z"], (string) $val["description"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], $merged_plots, $flags, $spawn, $chat, (int) $val["id"]);
+			$plots[] = new Plot((string) $val["level"], (int) $val["X"], (int) $val["Z"], (string) $val["name"], (string) $val["owner"], $helpers, $denied, (string) $val["biome"], $pvp, (float) $val["price"], $merged_plots, $flags, (int) $val["id"]);
 		}
 		// Remove unloaded plots
 		$plots = array_filter($plots, function(Plot $plot) : bool {

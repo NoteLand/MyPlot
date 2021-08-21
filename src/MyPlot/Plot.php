@@ -14,8 +14,6 @@ class Plot
 	public $X = -0;
 	/** @var int $Z */
 	public $Z = -0;
-    /** @var string $description */
-    public $description = "";
 	/** @var string $name */
 	public $name = "";
 	/** @var string $owner */
@@ -34,10 +32,6 @@ class Plot
 	public $merged_plots = [];
     /** @var array $flags */
     public $flags = [];
-    /** @var Position|null $spawn */
-    public $spawn = null;
-    /** @var bool $chat */
-    public $chat = false;
 	/** @var int $id */
 	public $id = -1;
 
@@ -47,7 +41,6 @@ class Plot
 	 * @param string $levelName
 	 * @param int $X
 	 * @param int $Z
-     * @param string $description
 	 * @param string $name
 	 * @param string $owner
 	 * @param string[] $helpers
@@ -57,15 +50,12 @@ class Plot
 	 * @param float $price
      * @param array $merged_plots
      * @param array $flags
-     * @param Position|null $spawn
-     * @param bool $chat
 	 * @param int $id
 	 */
-	public function __construct(string $levelName, int $X, int $Z, string $description = "", string $name = "", string $owner = "", array $helpers = [], array $denied = [], string $biome = "PLAINS", ?bool $pvp = null, float $price = -1, array $merged_plots = [], array $flags = [], ?Position $spawn = null, bool $chat = false, int $id = -1) {
+	public function __construct(string $levelName, int $X, int $Z, string $name = "", string $owner = "", array $helpers = [], array $denied = [], string $biome = "PLAINS", ?bool $pvp = null, float $price = -1, array $merged_plots = [], array $flags = [], int $id = -1) {
 		$this->levelName = $levelName;
 		$this->X = $X;
 		$this->Z = $Z;
-		$this->description = $description;
 		$this->name = $name;
 		$this->owner = $owner;
 		$this->helpers = $helpers;
@@ -84,8 +74,6 @@ class Plot
 		$this->price = $price < 0 ? $settings->claimPrice : $price;
 		$this->merged_plots = $merged_plots;
 		$this->flags = $flags;
-		$this->spawn = $spawn;
-		$this->chat = $chat;
 		$this->id = $id;
 	}
 
