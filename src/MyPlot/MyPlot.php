@@ -725,7 +725,7 @@ class MyPlot extends PluginBase
 			return false;
 		}
 		$resetBorder = self::getInstance()->getLevelSettings($plot->levelName)->wallBlock;
-        $resetBorder = new Border("Border", $resetBorder);
+        $resetBorder = new Border("Border", $resetBorder, "myplot.border.default");
         MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, $resetBorder));
 		return $this->dataProvider->deletePlot($plot);
 	}
