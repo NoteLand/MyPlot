@@ -15,6 +15,24 @@ softdepend:
 - WorldStyler
 - EasyCommandAutofill
 permissions:
+  myplot.border.*:
+    default: op
+    children:
+      myplot.border.default:
+        default: true
+      myplot.border.admin:
+        default: op
+      myplot.border.op:
+        default: op
+  myplot.wall.*:
+    default: op
+    children:
+      myplot.wall.default:
+        default: true
+      myplot.wall.admin:
+        default: op
+      myplot.wall.op:
+        default: op
   myplot.command:
     default: op
     children:

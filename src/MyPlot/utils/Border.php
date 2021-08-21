@@ -13,10 +13,20 @@ class Border
     /** @var Block $block */
     public $block;
 
-    public function __construct(string $name, Block $block)
+    /** @var string $permission */
+    public $permission;
+
+    /**
+     * Border constructor.
+     * @param string $name
+     * @param Block $block
+     * @param string $permission
+     */
+    public function __construct(string $name, Block $block, string $permission)
     {
         $this->name = $name;
         $this->block = $block;
+        $this->permission = $permission;
     }
 
     /** @return string */
@@ -29,5 +39,11 @@ class Border
     public function getBlock(): Block
     {
         return $this->block;
+    }
+
+    /** @return string */
+    public function getPermission(): string
+    {
+        return $this->permission;
     }
 }

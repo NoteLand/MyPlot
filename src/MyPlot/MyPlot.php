@@ -1124,18 +1124,22 @@ class MyPlot extends PluginBase
 
 		$plotsquared = new Config($this->getDataFolder() . "plotsquaredpm.yml");
         foreach ($plotsquared->get("borders", []) as $name => $data) {
-            $block = explode(':', $data);
-            if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-                $block = BlockFactory::get((int) $block[0], (int) $block[1]);
-                self::$borders[] = new Border($name, $block);
+            if (isset($data["id"]) and isset($data["perm"])) {
+                $block = explode(':', $data["id"]);
+                if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
+                    $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+                    self::$borders[] = new Border($name, $block, $data["perm"]);
+                }
             }
         }
 
         foreach ($plotsquared->get("walls", []) as $name => $data) {
-            $block = explode(':', $data);
-            if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-                $block = BlockFactory::get((int) $block[0], (int) $block[1]);
-                self::$walls[] = new Wall($name, $block);
+            if (isset($data["id"]) and isset($data["perm"])) {
+                $block = explode(':', $data["id"]);
+                if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
+                    $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+                    self::$walls[] = new Wall($name, $block, $data["perm"]);
+                }
             }
         }
 

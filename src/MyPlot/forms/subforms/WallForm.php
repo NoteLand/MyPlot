@@ -41,6 +41,10 @@ class WallForm extends SimpleMyPlotForm
                     $submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("notowner"));
                     return;
                 }
+                if (!$submitter->hasPermission($wall->getPermission())) {
+                    $submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("no.permissions"));
+                    return;
+                }
                 MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeWallTask($plot, $wall, $submitter));
             }
         );
