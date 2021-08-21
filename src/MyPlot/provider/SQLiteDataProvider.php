@@ -50,27 +50,12 @@ class SQLiteDataProvider extends DataProvider
 			// nothing :P
 		}
         try{
-            $this->db->exec("ALTER TABLE plots ADD description TEXT;");
-        }catch(\Exception $e) {
-            // nothing :P
-        }
-        try{
             $this->db->exec("ALTER TABLE plots ADD merged_plots TEXT;");
         }catch(\Exception $e) {
             // nothing :P
         }
         try{
             $this->db->exec("ALTER TABLE plots ADD flags TEXT;");
-        }catch(\Exception $e) {
-            // nothing :P
-        }
-        try{
-            $this->db->exec("ALTER TABLE plots ADD spawn TEXT;");
-        }catch(\Exception $e) {
-            // nothing :P
-        }
-        try{
-            $this->db->exec("ALTER TABLE plots ADD chat INT;");
         }catch(\Exception $e) {
             // nothing :P
         }
