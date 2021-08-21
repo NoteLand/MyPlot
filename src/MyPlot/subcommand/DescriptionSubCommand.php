@@ -36,11 +36,12 @@ class DescriptionSubCommand extends SubCommand
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
             return true;
         }
-        if($this->getPlugin()->desribePlot($plot, $args[0])) {
-            $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("description.success"));
-        }else{
-            $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
+        if ($args[0] === "remove") {
+            $plot->removeFlag("description");
+        } else {
+            $plot->setFlag("description", implode(" ", $args));
         }
+        $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("description.success"));
         return true;
     }
 

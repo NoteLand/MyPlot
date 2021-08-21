@@ -44,11 +44,11 @@ class ChatSubCommand extends SubCommand
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("notowner"));
                 return true;
             }
-		    if ($plot->chat) {
-		        $plot->chat = false;
+		    if ($plot->getFlag("chat")) {
+		        $plot->setFlag("chat", false);
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("chat.toggle_off"));
             } else {
-		        $plot->chat = true;
+                $plot->setFlag("chat", true);
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("chat.toggle_on"));
             }
 		    $this->getPlugin()->getProvider()->savePlot($plot);

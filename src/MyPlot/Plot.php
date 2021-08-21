@@ -203,7 +203,7 @@ class Plot
      */
     public function setFlag(string $flag, $value) : bool {
         $this->flags[$flag] = $value;
-        return true;
+        return MyPlot::getInstance()->savePlot($this);
     }
 
     /**
@@ -218,7 +218,7 @@ class Plot
             return false;
         }
         unset($this->flags[$flag]);
-        return true;
+        return MyPlot::getInstance()->savePlot($this);
     }
 
 	/**

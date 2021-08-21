@@ -27,7 +27,7 @@ class PlayerChatListener implements Listener
 
         $message = $event->getMessage();
 
-        if ($plot->chat) {
+        if ($plot->getFlag("chat")) {
             $event->setCancelled(true);
             $players = MyPlot::getInstance()->getServer()->getOnlinePlayers();
             foreach ($players as $player) {

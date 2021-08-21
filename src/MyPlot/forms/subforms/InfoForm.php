@@ -20,9 +20,14 @@ class InfoForm extends SimpleMyPlotForm {
         }
         $helpers = implode(", ", $this->plot->helpers);
         $denied = implode(", ", $this->plot->denied);
+        if (!$this->plot->getFlag("description")) {
+            $description = "";
+        } else {
+            $description = $this->plot->getFlag("description");
+        }
 		parent::__construct(
 		    MyPlot::getInstance()->getLanguage()->translateString("info.title"),
-            MyPlot::getInstance()->getLanguage()->translateString("info.content", [$this->plot, $owner, $this->plot->description, $this->plot->name, $helpers, $denied]),
+            MyPlot::getInstance()->getLanguage()->translateString("info.content", [$this->plot, $owner, $description, $this->plot->name, $helpers, $denied]),
             [],
             function(Player $submitter, int $selected) : void{}
         );
