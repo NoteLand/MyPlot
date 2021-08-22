@@ -29,7 +29,8 @@ class InfoForm extends SimpleMyPlotForm {
 		    MyPlot::getInstance()->getLanguage()->translateString("info.title"),
             MyPlot::getInstance()->getLanguage()->translateString("info.content", [$this->plot, $owner, $description, $this->plot->name, $helpers, $denied]),
             [],
-            function(Player $submitter, int $selected) : void{}
+            function(Player $submitter, int $selected) : void {},
+            function () : void {}
         );
 	}
 }
