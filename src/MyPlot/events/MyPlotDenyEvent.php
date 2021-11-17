@@ -4,15 +4,17 @@ namespace MyPlot\events;
 
 use MyPlot\Plot;
 use pocketmine\event\Cancellable;
-use pocketmine\IPlayer;
+use pocketmine\event\CancellableTrait;
+use pocketmine\player\IPlayer;
 
 class MyPlotDenyEvent extends MyPlotPlotEvent implements Cancellable {
+    use CancellableTrait;
+
 	public const ADD = 0;
 	public const REMOVE = 1;
-	/** @var int $type */
-	private $type;
-	/** @var string $player */
-	private $player;
+
+	private int $type;
+	private string $player;
 
 	/**
 	 * MyPlotDenyEvent constructor.

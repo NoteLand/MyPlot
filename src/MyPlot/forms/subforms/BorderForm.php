@@ -8,7 +8,7 @@ use dktapps\pmforms\MenuOption;
 use MyPlot\forms\SimpleMyPlotForm;
 use MyPlot\MyPlot;
 use MyPlot\task\ChangeBorderTask;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class BorderForm extends SimpleMyPlotForm

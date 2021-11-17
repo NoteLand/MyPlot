@@ -7,7 +7,7 @@ use MyPlot\forms\subforms\OwnerForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class SetOwnerSubCommand extends SubCommand {
@@ -25,24 +25,24 @@ class SetOwnerSubCommand extends SubCommand {
 		if(count($args) === 0) {
 			return false;
 		}
-		$plot = $this->getPlugin()->getPlotByPosition($sender);
+		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
-		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($sender);
+		$maxPlots = $this->getOwningPlugin()->getMaxPlotsOfPlayer($sender);
 		$plotsOfPlayer = 0;
-		foreach($this->getPlugin()->getPlotLevels() as $level => $settings) {
-			$level = $this->getPlugin()->getServer()->getLevelByName($level);
-			if($level !== null and !$level->isClosed()) {
-				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
+		foreach($this->getOwningPlugin()->getPlotLevels() as $level => $settings) {
+			$level = $this->getOwningPlugin()->getServer()->getWorldManager()->getWorldByName($level);
+			if($level !== null and $level->isLoaded()) {
+				$plotsOfPlayer += count($this->getOwningPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("setowner.maxplots", [$maxPlots]));
 			return true;
 		}
-		if($this->getPlugin()->claimPlot($plot, $args[0])) {
+		if($this->getOwningPlugin()->claimPlot($plot, $args[0])) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("setowner.success", [$args[0]]));
 		}else{
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
@@ -51,7 +51,7 @@ class SetOwnerSubCommand extends SubCommand {
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and $this->getPlugin()->getPlotByPosition($player) instanceof Plot)
+		if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
 			return new OwnerForm();
 		return null;
 	}

@@ -8,17 +8,18 @@ use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\block\SignChangeEvent;
 use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
 use pocketmine\event\Event;
 use pocketmine\event\player\PlayerInteractEvent;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class MyPlotBlockEvent extends MyPlotPlotEvent implements Cancellable {
-	/** @var Block $block */
-	private $block;
+    use CancellableTrait;
+
+	private Block $block;
 	/** @var BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent $event */
 	private $event;
-	/** @var Player $player */
-	private $player;
+	private Player $player;
 
 	/**
 	 * MyPlotBlockEvent constructor.

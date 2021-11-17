@@ -5,37 +5,26 @@ namespace MyPlot\task;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\block\Block;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
+use pocketmine\block\VanillaBlocks;
 use pocketmine\math\Vector3;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\scheduler\Task;
+use pocketmine\world\Position;
+use pocketmine\world\World;
 
 class ClearPlotTask extends Task {
-	/** @var MyPlot $plugin */
-	protected $plugin;
-	/** @var Plot $plot */
-	protected $plot;
-	/** @var Level $level */
-	protected $level;
-	/** @var int $height */
-	protected $height;
-	/** @var Block $bottomBlock */
-	protected $bottomBlock;
-	/** @var Block $plotFillBlock */
-	protected $plotFillBlock;
-	/** @var Block $plotFloorBlock */
-	protected $plotFloorBlock;
-	/** @var Position $plotBeginPos */
-	protected $plotBeginPos;
-	/** @var int $xMax */
-	protected $xMax;
-	/** @var int $zMax */
-	protected $zMax;
-	/** @var int $maxBlocksPerTick */
-	protected $maxBlocksPerTick;
-	/** @var Vector3 $pos */
-	protected $pos;
+	protected MyPlot $plugin;
+	protected Plot $plot;
+	protected World $level;
+	protected int $height;
+	protected Block $bottomBlock;
+	protected Block $plotFillBlock;
+	protected Block $plotFloorBlock;
+	protected Position $plotBeginPos;
+	protected int $xMax;
+	protected int $zMax;
+	protected int $maxBlocksPerTick;
+	protected Vector3 $pos;
 
 	/**
 	 * ClearPlotTask constructor.
@@ -48,7 +37,7 @@ class ClearPlotTask extends Task {
 		$this->plugin = $plugin;
 		$this->plot = $plot;
 		$this->plotBeginPos = $plugin->getPlotPosition($plot);
-		$this->level = $this->plotBeginPos->getLevelNonNull();
+		$this->level = $this->plotBeginPos->getWorld();
 		$plotLevel = $plugin->getLevelSettings($plot->levelName);
 		$plotSize = $plotLevel->plotSize;
 		$this->xMax = (int)($this->plotBeginPos->x + $plotSize);
@@ -63,9 +52,9 @@ class ClearPlotTask extends Task {
 		$plugin->getLogger()->debug("Plot Clear Task started at plot {$plot->X};{$plot->Z}");
 	}
 
-	public function onRun(int $currentTick) : void {
+	public function onRun() : void {
 		foreach($this->level->getEntities() as $entity) {
-			if($this->plugin->getPlotBB($this->plot)->isVectorInXZ($entity)) {
+			if($this->plugin->getPlotBB($this->plot)->isVectorInXZ($entity->getPosition()->asVector3())) {
 				if(!$entity instanceof Player) {
 					$entity->flagForDespawn();
 				}else{
@@ -76,7 +65,7 @@ class ClearPlotTask extends Task {
 		$blocks = 0;
 		while($this->pos->x < $this->xMax) {
 			while($this->pos->z < $this->zMax) {
-				while($this->pos->y < $this->level->getWorldHeight()) {
+				while($this->pos->y < $this->level->getMaxY()) {
 					if($this->pos->y === 0) {
 						$block = $this->bottomBlock;
 					}elseif($this->pos->y < $this->height) {
@@ -84,12 +73,12 @@ class ClearPlotTask extends Task {
 					}elseif($this->pos->y === $this->height) {
 						$block = $this->plotFloorBlock;
 					}else{
-						$block = Block::get(Block::AIR);
+						$block = VanillaBlocks::AIR();
 					}
-					$this->level->setBlock($this->pos, $block, false, false);
+					$this->level->setBlock($this->pos, $block, false);
 					$blocks++;
 					if($blocks >= $this->maxBlocksPerTick) {
-						$this->setHandler();
+						$this->setHandler(null);
 						$this->plugin->getScheduler()->scheduleDelayedTask($this, 1);
 						return;
 					}
@@ -101,13 +90,15 @@ class ClearPlotTask extends Task {
 			$this->pos->z = $this->plotBeginPos->z;
 			$this->pos->x++;
 		}
-		foreach($this->level->getTiles() as $tile) {
-			if(($plot = $this->plugin->getPlotByPosition($tile)) != null) {
-				if($this->plot->isSame($plot)) {
-					$tile->close();
-				}
-			}
-		}
+        foreach($this->plugin->getPlotChunks($this->plot) as $chunk) {
+            foreach($chunk->getTiles() as $tile) {
+                if(($plot = $this->plugin->getPlotByPosition($tile->getPosition())) != null) {
+                    if($this->plot->isSame($plot)) {
+                        $tile->close();
+                    }
+                }
+            }
+        }
 		$this->plugin->getScheduler()->scheduleDelayedTask(new ClearBorderTask($this->plugin, $this->plot), 1);
 		$this->plugin->getLogger()->debug("Plot Clear task completed at {$this->plotBeginPos->x};{$this->plotBeginPos->z}");
 	}

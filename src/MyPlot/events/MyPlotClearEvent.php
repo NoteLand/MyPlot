@@ -4,10 +4,12 @@ namespace MyPlot\events;
 
 use MyPlot\Plot;
 use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
 
 class MyPlotClearEvent extends MyPlotPlotEvent implements Cancellable {
-	/** @var int $maxBlocksPerTick */
-	private $maxBlocksPerTick = 256;
+    use CancellableTrait;
+
+	private int $maxBlocksPerTick = 256;
 
 	/**
 	 * MyPlotClearEvent constructor.

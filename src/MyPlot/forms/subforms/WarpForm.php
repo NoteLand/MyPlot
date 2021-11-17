@@ -8,7 +8,7 @@ use dktapps\pmforms\element\Input;
 use MyPlot\forms\ComplexMyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\form\FormValidationException;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class WarpForm extends ComplexMyPlotForm {
@@ -16,6 +16,7 @@ class WarpForm extends ComplexMyPlotForm {
 	private $player;
 
 	public function __construct(Player $player) {
+	    $this->player = $player;
 		$plugin = MyPlot::getInstance();
 		parent::__construct(
 			TextFormat::BLACK.$plugin->getLanguage()->translateString("form.header", [$plugin->getLanguage()->get("warp.form")]),
@@ -34,7 +35,7 @@ class WarpForm extends ComplexMyPlotForm {
 					"2",
 					$plugin->getLanguage()->get("warp.formworld"),
 					"world",
-					$player->getLevelNonNull()->getFolderName()
+					$player->getPosition()->getWorld()->getFolderName()
 				)
 			],
 			function(Player $player, CustomFormResponse $response) use ($plugin) : void {
@@ -42,7 +43,7 @@ class WarpForm extends ComplexMyPlotForm {
 					$data =[
 						(int)$response->getString("0"),
 						(int)$response->getString("1"),
-						$response->getString("2") === '' ? $player->getLevelNonNull()->getFolderName() : $response->getString("2")
+						$response->getString("2") === '' ? $player->getPosition()->getWorld()->getFolderName() : $response->getString("2")
 					];
 				elseif($response->getString("0") === '' and $response->getString("1") === '') {
 					$player->sendForm(new self($player));
@@ -50,7 +51,7 @@ class WarpForm extends ComplexMyPlotForm {
 				}else
 					throw new FormValidationException("Unexpected form data returned");
 
-				$player->getServer()->dispatchCommand($player, $plugin->getLanguage()->get("command.name")." ".$plugin->getLanguage()->get("warp.name")." ".((int)$response->getString("0")).";".((int)$response->getString("1")).' "'.($response->getString("2") === '' ? $this->player->getLevelNonNull()->getFolderName() : $response->getString("2")).'"', true);
+				$player->getServer()->dispatchCommand($player, $plugin->getLanguage()->get("command.name")." ".$plugin->getLanguage()->get("warp.name")." ".((int)$response->getString("0")).";".((int)$response->getString("1")).' "'.($response->getString("2") === '' ? $this->player->getPosition()->getWorld()->getFolderName() : $response->getString("2")).'"', true);
 			}
 		);
 	}

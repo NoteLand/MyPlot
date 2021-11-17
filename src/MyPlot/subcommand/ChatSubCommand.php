@@ -9,8 +9,7 @@ use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
 use MyPlot\forms\MyPlotForm;
-use pocketmine\Player;
-use pocketmine\utils\TextFormat;
+use pocketmine\player\Player;
 
 class ChatSubCommand extends SubCommand
 {
@@ -30,7 +29,7 @@ class ChatSubCommand extends SubCommand
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, array $args): bool{
-	    $plot = $this->getPlugin()->getPlotByPosition($sender);
+	    $plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("notinplot"));
 			return true;
@@ -51,15 +50,15 @@ class ChatSubCommand extends SubCommand
                 $plot->setFlag("chat", true);
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("chat.toggle_on"));
             }
-		    $this->getPlugin()->getProvider()->savePlot($plot);
+		    $this->getOwningPlugin()->getProvider()->savePlot($plot);
 		    return true;
         }
 
 		$message = implode(" ", $args);
 
-		$players = $this->getPlugin()->getServer()->getOnlinePlayers();
+		$players = $this->getOwningPlugin()->getServer()->getOnlinePlayers();
 		foreach ($players as $player) {
-			$playerplot = $this->getPlugin()->getPlotByPosition($player);
+			$playerplot = $this->getOwningPlugin()->getPlotByPosition($player->getPosition());
 			if ($playerplot !== null) {
 				if ($playerplot === $plot) {
 					$player->sendMessage($this->translateString("chat.format", [$sender->getName(), $message]));
@@ -70,7 +69,7 @@ class ChatSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-        if($player !== null and $this->getPlugin()->getPlotByPosition($player) instanceof Plot)
+        if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
             return new ChatForm($player);
 		return null;
 	}

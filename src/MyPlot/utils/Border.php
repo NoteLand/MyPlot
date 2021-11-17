@@ -7,14 +7,9 @@ use pocketmine\block\Block;
 
 class Border
 {
-    /** @var string $name */
-    public $name;
-
-    /** @var Block $block */
-    public $block;
-
-    /** @var string $permission */
-    public $permission;
+    public string $name;
+    public Block $block;
+    public string $permission;
 
     /**
      * Border constructor.

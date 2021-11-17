@@ -36,16 +36,18 @@ use MyPlot\subcommand\SubCommand;
 use MyPlot\subcommand\UnDenySubCommand;
 use MyPlot\subcommand\WallSubCommand;
 use MyPlot\subcommand\WarpSubCommand;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\CommandData;
-use pocketmine\network\mcpe\protocol\types\CommandEnum;
-use pocketmine\network\mcpe\protocol\types\CommandParameter;
-use pocketmine\Player;
+use pocketmine\network\mcpe\protocol\types\command\CommandData;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
+use pocketmine\player\Player;
+use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
 use pocketmine\utils\TextFormat;
 
-class Commands extends PluginCommand
+class Commands extends Command implements PluginOwned
 {
 	/** @var SubCommand[] $subCommands */
 	private $subCommands = [];
@@ -58,11 +60,12 @@ class Commands extends PluginCommand
 	 * @param MyPlot $plugin
 	 */
 	public function __construct(MyPlot $plugin) {
-		parent::__construct($plugin->getLanguage()->get("command.name"), $plugin);
+        parent::__construct($plugin->getLanguage()->get("command.name"),
+            $plugin->getLanguage()->get("command.desc"),
+            $plugin->getLanguage()->get("command.usage"),
+            [$plugin->getLanguage()->get("command.alias")]
+        );
 		$this->setPermission("myplot.command");
-		$this->setAliases([$plugin->getLanguage()->get("command.alias")]);
-		$this->setDescription($plugin->getLanguage()->get("command.desc"));
-		$this->setUsage($plugin->getLanguage()->get("command.usage"));
 		$this->loadSubCommand(new AddHelperSubCommand($plugin, "addhelper"));
 		$this->loadSubCommand(new AutoSubCommand($plugin, "auto"));
         $this->loadSubCommand(new BiomeSubCommand($plugin, "biome"));
@@ -73,7 +76,7 @@ class Commands extends PluginCommand
         $this->loadSubCommand(new ChatSubCommand($plugin, "chat"));
         $this->loadSubCommand(new ClaimSubCommand($plugin, "claim"));
 		$this->loadSubCommand(new ClearSubCommand($plugin, "clear"));
-        $styler = $this->getPlugin()->getServer()->getPluginManager()->getPlugin("WorldStyler");
+        $styler = $this->getOwningPlugin()->getServer()->getPluginManager()->getPlugin("WorldStyler");
         if($styler !== null) {
             $this->loadSubCommand(new CloneSubCommand($plugin, "clone"));
         }
@@ -226,7 +229,7 @@ class Commands extends PluginCommand
 	 */
 	public function execute(CommandSender $sender, string $alias, array $args) : bool {
 		/** @var MyPlot $plugin */
-		$plugin = $this->getPlugin();
+		$plugin = $this->getOwningPlugin();
 		if($plugin->isDisabled()) {
 			$sender->sendMessage(MyPlot::getPrefix() . $plugin->getLanguage()->get("plugin.disabled"));
 			return true;
@@ -257,4 +260,9 @@ class Commands extends PluginCommand
 		}
 		return true;
 	}
+
+    public function getOwningPlugin() : Plugin
+    {
+        return MyPlot::getInstance();
+    }
 }

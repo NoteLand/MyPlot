@@ -5,7 +5,7 @@ namespace MyPlot\subcommand;
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class SellSubCommand extends SubCommand
@@ -24,7 +24,7 @@ class SellSubCommand extends SubCommand
 		if(count($args) === 0) {
 			return false;
 		}
-		$plot = $this->getPlugin()->getPlotByPosition($sender->asPosition());
+		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null){
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -36,7 +36,7 @@ class SellSubCommand extends SubCommand
 		if(!is_numeric($args[0]))
 			return false;
 		$price = (float)$args[0];
-		if($this->getPlugin()->sellPlot($plot, $price) and $price > 0) {
+		if($this->getOwningPlugin()->sellPlot($plot, $price) and $price > 0) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("sell.success", ["{$plot->X};{$plot->Z}", $price]));
 		}elseif($price <= 0){
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("sell.unlisted", ["{$plot->X};{$plot->Z}"]));

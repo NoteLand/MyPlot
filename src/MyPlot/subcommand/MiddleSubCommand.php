@@ -5,7 +5,7 @@ namespace MyPlot\subcommand;
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class MiddleSubCommand extends SubCommand
@@ -24,7 +24,7 @@ class MiddleSubCommand extends SubCommand
 		if(count($args) != 0) {
 			return false;
 		}
-		$plot = $this->getPlugin()->getPlotByPosition($sender);
+		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -33,7 +33,7 @@ class MiddleSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		if($this->getPlugin()->teleportPlayerToPlot($sender, $plot, true)) {
+		if($this->getOwningPlugin()->teleportPlayerToPlot($sender, $plot, true)) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::GREEN . $this->translateString("middle.success"));
 		}
 		return true;

@@ -5,7 +5,7 @@ namespace MyPlot\subcommand;
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class HomesSubCommand extends SubCommand
@@ -21,8 +21,8 @@ class HomesSubCommand extends SubCommand
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, array $args) : bool {
-		$levelName = $args[0] ?? $sender->getLevelNonNull()->getFolderName();
-		$plots = $this->getPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
+		$levelName = $args[0] ?? $sender->getPosition()->getWorld()->getFolderName();
+		$plots = $this->getOwningPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
 		if(count($plots) === 0) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("homes.noplots"));
 			return true;
