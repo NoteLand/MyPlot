@@ -30,6 +30,14 @@ abstract class SubCommand implements PluginOwned
     }
 
     /**
+     * @return MyPlot
+     */
+    public function getPlugin() : Plugin
+    {
+        return $this->plugin;
+    }
+
+    /**
      * @param string $str
      * @param (float|int|string)[] $params
      *
