@@ -1150,7 +1150,7 @@ class MyPlot extends PluginBase
             if (isset($data["id"]) and isset($data["perm"])) {
                 $block = explode(':', $data["id"]);
                 if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-                    $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+                    $block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
                     self::$borders[] = new Border($name, $block, $data["perm"]);
                 }
             }
@@ -1160,7 +1160,7 @@ class MyPlot extends PluginBase
             if (isset($data["id"]) and isset($data["perm"])) {
                 $block = explode(':', $data["id"]);
                 if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-                    $block = BlockFactory::get((int) $block[0], (int) $block[1]);
+                    $block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
                     self::$walls[] = new Wall($name, $block, $data["perm"]);
                 }
             }
