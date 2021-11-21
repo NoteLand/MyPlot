@@ -6,6 +6,7 @@ use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\world\ChunkManager;
+use pocketmine\world\format\BiomeArray;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\generator\Generator;
 
@@ -49,7 +50,7 @@ class MyPlotGenerator extends Generator {
 
     public function generateChunk(ChunkManager $world, int $chunkX, int $chunkZ) : void {
         $shape = $this->getShape($chunkX << 4, $chunkZ << 4);
-        $chunk = $world->getChunk($chunkX, $chunkZ) ?? new Chunk();
+        $chunk = $world->getChunk($chunkX, $chunkZ) ?? new Chunk([], BiomeArray::fill(BiomeIds::PLAINS), false);
         $bottomBlockId = $this->bottomBlock->getFullId();
         $plotFillBlockId = $this->plotFillBlock->getFullId();
         $plotFloorBlockId = $this->plotFloorBlock->getFullId();
