@@ -7,7 +7,6 @@ use MyPlot\forms\subforms\AddHelperForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
-use pocketmine\player\OfflinePlayer;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
@@ -39,7 +38,7 @@ class AddHelperSubCommand extends SubCommand
 		}
 		$helper = $this->getOwningPlugin()->getServer()->getPlayerByPrefix($helperName);
 		if($helper === null)
-			$helper = new OfflinePlayer($helperName);
+			$helper = $this->getOwningPlugin()->getServer()->getOfflinePlayer($helperName);
 		if($this->getOwningPlugin()->addPlotHelper($plot, $helper->getName())) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("addhelper.success", [$helper->getName()]));
 		}else{

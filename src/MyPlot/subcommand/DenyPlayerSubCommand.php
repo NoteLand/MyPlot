@@ -7,7 +7,6 @@ use MyPlot\forms\subforms\DenyPlayerForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
-use pocketmine\player\OfflinePlayer;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
