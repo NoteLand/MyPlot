@@ -7,8 +7,7 @@ use MyPlot\forms\subforms\UndenyPlayerForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
-use pocketmine\OfflinePlayer;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class UnDenySubCommand extends SubCommand
@@ -28,7 +27,7 @@ class UnDenySubCommand extends SubCommand
 			return false;
 		}
 		$dplayerName = $args[0];
-		$plot = $this->getPlugin()->getPlotByPosition($sender);
+		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -37,10 +36,10 @@ class UnDenySubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$dplayer = $this->getPlugin()->getServer()->getPlayer($dplayerName);
+		$dplayer = $this->getOwningPlugin()->getServer()->getPlayerByPrefix($dplayerName);
 		if($dplayer === null)
-			$dplayer = new OfflinePlayer($this->getPlugin()->getServer(), $dplayerName);
-		if($this->getPlugin()->removePlotDenied($plot, $dplayer->getName())) {
+			$dplayer = $this->getOwningPlugin()->getServer()->getOfflinePlayer($dplayerName);
+		if($this->getOwningPlugin()->removePlotDenied($plot, $dplayer->getName())) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("undenyplayer.success1", [$dplayer->getName()]));
 			if($dplayer instanceof Player) {
 				$dplayer->sendMessage($this->translateString("undenyplayer.success2", [$plot->X, $plot->Z, $sender->getName()]));
@@ -52,7 +51,7 @@ class UnDenySubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and $this->getPlugin()->getPlotByPosition($player) instanceof Plot)
+		if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
 			return new UndenyPlayerForm();
 		return null;
 	}

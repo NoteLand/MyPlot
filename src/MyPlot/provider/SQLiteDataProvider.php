@@ -4,7 +4,6 @@ namespace MyPlot\provider;
 
 use MyPlot\MyPlot;
 use MyPlot\Plot;
-use pocketmine\level\Position;
 
 class SQLiteDataProvider extends DataProvider
 {

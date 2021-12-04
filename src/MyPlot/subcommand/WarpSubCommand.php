@@ -6,7 +6,7 @@ use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\WarpForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class WarpSubCommand extends SubCommand
@@ -25,8 +25,8 @@ class WarpSubCommand extends SubCommand
 		if(count($args) === 0) {
 			return false;
 		}
-		$levelName = $args[1] ?? $sender->getLevelNonNull()->getFolderName();
-		if(!$this->getPlugin()->isLevelLoaded($levelName)) {
+		$levelName = $args[1] ?? $sender->getPosition()->getWorld()->getFolderName();
+		if(!$this->getOwningPlugin()->isLevelLoaded($levelName)) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("warp.notinplotworld"));
 			return true;
 		}
@@ -36,12 +36,12 @@ class WarpSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("warp.wrongid"));
 			return true;
 		}
-		$plot = $this->getPlugin()->getProvider()->getPlot($levelName, (int) $plotIdArray[0], (int) $plotIdArray[1]);
+		$plot = $this->getOwningPlugin()->getProvider()->getPlot($levelName, (int) $plotIdArray[0], (int) $plotIdArray[1]);
 		if($plot->owner == "" and !$sender->hasPermission("myplot.admin.warp")) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("warp.unclaimed"));
 			return true;
 		}
-		if($this->getPlugin()->teleportPlayerToPlot($sender, $plot)) {
+		if($this->getOwningPlugin()->teleportPlayerToPlot($sender, $plot)) {
 			$plot = TextFormat::GREEN . $plot . TextFormat::WHITE;
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("warp.success", [$plot]));
 		}else{

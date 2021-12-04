@@ -4,14 +4,10 @@ namespace MyPlot\provider;
 
 use MyPlot\MyPlot;
 use MyPlot\Plot;
-use pocketmine\level\Position;
 use pocketmine\utils\Config;
 
 class JSONDataProvider extends DataProvider {
-	/** @var MyPlot $plugin */
-	protected $plugin;
-	/** @var Config $json */
-	private $json;
+	private Config $json;
 
 	/**
 	 * JSONDataProvider constructor.
@@ -37,7 +33,8 @@ class JSONDataProvider extends DataProvider {
 		}
 		$this->json->set("plots", $plots);
 		$this->cachePlot($plot);
-		return $this->json->save();
+        $this->json->save();
+		return true;
 	}
 
 	public function deletePlot(Plot $plot) : bool {
@@ -46,7 +43,8 @@ class JSONDataProvider extends DataProvider {
 		$this->json->set("plots", $plots);
 		$plot = new Plot($plot->levelName, $plot->X, $plot->Z);
 		$this->cachePlot($plot);
-		return $this->json->save();
+        $this->json->save();
+        return true;
 	}
 
 	public function getPlot(string $levelName, int $X, int $Z) : Plot {

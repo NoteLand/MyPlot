@@ -5,7 +5,7 @@ namespace MyPlot\subcommand;
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat as TF;
 
 class ListSubCommand extends SubCommand {
@@ -22,8 +22,8 @@ class ListSubCommand extends SubCommand {
 	public function execute(CommandSender $sender, array $args) : bool {
 		if($sender->hasPermission("myplot.admin.list")) {
 			if(count($args) > 0) {
-				foreach($this->getPlugin()->getPlotLevels() as $levelName => $settings) {
-					$plots = $this->getPlugin()->getPlotsOfPlayer($args[0], $levelName);
+				foreach($this->getOwningPlugin()->getPlotLevels() as $levelName => $settings) {
+					$plots = $this->getOwningPlugin()->getPlotsOfPlayer($args[0], $levelName);
 					foreach($plots as $plot) {
 						$name = $plot->name;
 						$x = $plot->X;
@@ -32,8 +32,8 @@ class ListSubCommand extends SubCommand {
 					}
 				}
 			}else{
-				foreach($this->getPlugin()->getPlotLevels() as $levelName => $settings) {
-					$plots = $this->getPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
+				foreach($this->getOwningPlugin()->getPlotLevels() as $levelName => $settings) {
+					$plots = $this->getOwningPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
 					foreach($plots as $plot) {
 						$name = $plot->name;
 						$x = $plot->X;
@@ -43,8 +43,8 @@ class ListSubCommand extends SubCommand {
 				}
 			}
 		}elseif($sender->hasPermission("myplot.command.list")) {
-			foreach($this->getPlugin()->getPlotLevels() as $levelName => $settings) {
-				$plots = $this->getPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
+			foreach($this->getOwningPlugin()->getPlotLevels() as $levelName => $settings) {
+				$plots = $this->getOwningPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
 				foreach($plots as $plot) {
 					$name = $plot->name;
 					$x = $plot->X;

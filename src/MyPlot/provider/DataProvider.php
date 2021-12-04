@@ -9,10 +9,8 @@ abstract class DataProvider
 {
 	/** @var Plot[] $cache */
 	private $cache = [];
-	/** @var int $cacheSize */
-	private $cacheSize;
-	/** @var MyPlot $plugin */
-	protected $plugin;
+	private int $cacheSize;
+	protected MyPlot $plugin;
 
 	/**
 	 * DataProvider constructor.

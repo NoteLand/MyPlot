@@ -5,7 +5,7 @@ namespace MyPlot\subcommand;
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class PvpSubCommand extends SubCommand {
@@ -21,7 +21,7 @@ class PvpSubCommand extends SubCommand {
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, array $args) : bool {
-		$plot = $this->getPlugin()->getPlotByPosition($sender);
+		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("notinplot"));
 			return true;
@@ -30,12 +30,12 @@ class PvpSubCommand extends SubCommand {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("notowner"));
 			return true;
 		}
-		$levelSettings = $this->getPlugin()->getLevelSettings($sender->getLevelNonNull()->getFolderName());
+		$levelSettings = $this->getOwningPlugin()->getLevelSettings($sender->getPosition()->getWorld()->getFolderName());
 		if($levelSettings->restrictPVP) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("pvp.world"));
 			return true;
 		}
-		if($this->getPlugin()->setPlotPvp($plot, !$plot->pvp)) {
+		if($this->getOwningPlugin()->setPlotPvp($plot, !$plot->pvp)) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("pvp.success", [!$plot->pvp ? "enabled" : "disabled"]));
 		}else {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("error"));

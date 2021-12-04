@@ -7,8 +7,7 @@ use MyPlot\forms\subforms\AddHelperForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
-use pocketmine\OfflinePlayer;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class AddHelperSubCommand extends SubCommand
@@ -28,7 +27,7 @@ class AddHelperSubCommand extends SubCommand
 			return false;
 		}
 		$helperName = $args[0];
-		$plot = $this->getPlugin()->getPlotByPosition($sender);
+		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -37,10 +36,10 @@ class AddHelperSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$helper = $this->getPlugin()->getServer()->getPlayer($helperName);
+		$helper = $this->getOwningPlugin()->getServer()->getPlayerByPrefix($helperName);
 		if($helper === null)
-			$helper = new OfflinePlayer($this->getPlugin()->getServer(), $helperName);
-		if($this->getPlugin()->addPlotHelper($plot, $helper->getName())) {
+			$helper = $this->getOwningPlugin()->getServer()->getOfflinePlayer($helperName);
+		if($this->getOwningPlugin()->addPlotHelper($plot, $helper->getName())) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("addhelper.success", [$helper->getName()]));
 		}else{
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
@@ -49,7 +48,7 @@ class AddHelperSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and ($plot = $this->getPlugin()->getPlotByPosition($player)) instanceof Plot)
+		if($player !== null and ($plot = $this->getOwningPlugin()->getPlotByPosition($player->getPosition())) instanceof Plot)
 			return new AddHelperForm($plot);
 		return null;
 	}

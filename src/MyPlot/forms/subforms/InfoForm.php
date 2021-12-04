@@ -4,16 +4,16 @@ namespace MyPlot\forms\subforms;
 
 use MyPlot\forms\SimpleMyPlotForm;
 use MyPlot\MyPlot;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class InfoForm extends SimpleMyPlotForm {
 	public function __construct(Player $player) {
         if(!isset($this->plot))
-            $this->plot = MyPlot::getInstance()->getPlotByPosition($player);
+            $this->plot = MyPlot::getInstance()->getPlotByPosition($player->getPosition());
         if(!isset($this->plot))
             return;
 
-        if (MyPlot::getInstance()->getServer()->getPlayer($this->plot->owner)) {
+        if (MyPlot::getInstance()->getServer()->getPlayerByPrefix($this->plot->owner)) {
             $owner = $this->plot->owner . " §a(Online)";
         } else {
             $owner = $this->plot->owner . " §c(Offline)";

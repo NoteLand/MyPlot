@@ -5,11 +5,11 @@ namespace MyPlot\subcommand;
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginIdentifiableCommand;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
 
-abstract class SubCommand implements PluginIdentifiableCommand
+abstract class SubCommand implements PluginOwned
 {
 	/** @var MyPlot $plugin */
     private $plugin;
@@ -24,7 +24,16 @@ abstract class SubCommand implements PluginIdentifiableCommand
     /**
      * @return MyPlot
      */
-	public final function getPlugin() : Plugin {
+    public function getOwningPlugin() : Plugin
+    {
+        return $this->plugin;
+    }
+
+    /**
+     * @return MyPlot
+     */
+    public function getPlugin() : Plugin
+    {
         return $this->plugin;
     }
 
@@ -42,22 +51,22 @@ abstract class SubCommand implements PluginIdentifiableCommand
 	public abstract function canUse(CommandSender $sender) : bool;
 
 	public function getUsage() : string {
-        $usage = $this->getPlugin()->getFallBackLang()->get($this->name . ".usage"); // TODO: use normal language when command autofill gains support
+        $usage = $this->getOwningPlugin()->getFallBackLang()->get($this->name . ".usage"); // TODO: use normal language when command autofill gains support
         return ($usage == $this->name . ".usage") ? "" : $usage;
     }
 
 	public function getName() : string {
-        $name = $this->getPlugin()->getLanguage()->get($this->name . ".name");
+        $name = $this->getOwningPlugin()->getLanguage()->get($this->name . ".name");
         return ($name == $this->name . ".name") ? "" : $name;
     }
 
 	public function getDescription() : string {
-        $desc = $this->getPlugin()->getLanguage()->get($this->name . ".desc");
+        $desc = $this->getOwningPlugin()->getLanguage()->get($this->name . ".desc");
         return ($desc == $this->name . ".desc") ? "" : $desc;
     }
 
 	public function getAlias() : string {
-        $alias = $this->getPlugin()->getLanguage()->get($this->name . ".alias");
+        $alias = $this->getOwningPlugin()->getLanguage()->get($this->name . ".alias");
         return ($alias == $this->name . ".alias") ? "" : $alias;
     }
 

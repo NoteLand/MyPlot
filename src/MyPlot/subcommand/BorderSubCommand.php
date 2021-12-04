@@ -8,7 +8,7 @@ use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\BorderForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class BorderSubCommand extends SubCommand
@@ -27,7 +27,7 @@ class BorderSubCommand extends SubCommand
      */
     public function execute(CommandSender $sender, array $args): bool
     {
-        $plot = $this->getPlugin()->getPlotByPosition($sender);
+        $plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
         if($plot === null) {
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
             return true;
@@ -47,7 +47,7 @@ class BorderSubCommand extends SubCommand
     }
 
     public function getForm(?Player $player = null) : ?MyPlotForm {
-        if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getLevelNonNull()->getFolderName()) and (count(MyPlot::$borders) > 0))
+        if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getPosition()->getWorld()->getFolderName()) and (count(MyPlot::$borders) > 0))
             return new BorderForm();
         return null;
     }

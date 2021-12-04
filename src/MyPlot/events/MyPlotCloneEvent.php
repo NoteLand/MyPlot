@@ -4,10 +4,12 @@ namespace MyPlot\events;
 
 use MyPlot\Plot;
 use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
 
 class MyPlotCloneEvent extends MyPlotPlotEvent implements Cancellable {
-	/** @var Plot $clonePlot **/
-	protected $clonePlot;
+	use CancellableTrait;
+
+	protected Plot $clonePlot;
 
 	/**
 	 * MyPlotCloneEvent constructor.

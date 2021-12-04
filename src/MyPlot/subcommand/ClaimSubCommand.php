@@ -6,7 +6,7 @@ use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\ClaimForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class ClaimSubCommand extends SubCommand
@@ -26,7 +26,7 @@ class ClaimSubCommand extends SubCommand
 		if(isset($args[0])) {
 			$name = $args[0];
 		}
-		$plot = $this->getPlugin()->getPlotByPosition($sender);
+		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -39,24 +39,24 @@ class ClaimSubCommand extends SubCommand
 			}
 			return true;
 		}
-		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($sender);
+		$maxPlots = $this->getOwningPlugin()->getMaxPlotsOfPlayer($sender);
 		$plotsOfPlayer = 0;
-		foreach($this->getPlugin()->getPlotLevels() as $level => $settings) {
-			$level = $this->getPlugin()->getServer()->getLevelByName((string)$level);
-			if($level !== null and !$level->isClosed()) {
-				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
+		foreach($this->getOwningPlugin()->getPlotLevels() as $level => $settings) {
+			$level = $this->getOwningPlugin()->getServer()->getWorldManager()->getWorldByName((string)$level);
+			if($level !== null and $level->isLoaded()) {
+				$plotsOfPlayer += count($this->getOwningPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("claim.maxplots", [$maxPlots]));
 			return true;
 		}
-		$economy = $this->getPlugin()->getEconomyProvider();
+		$economy = $this->getOwningPlugin()->getEconomyProvider();
 		if($economy !== null and !$economy->reduceMoney($sender, $plot->price)) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("claim.nomoney"));
 			return true;
 		}
-		if($this->getPlugin()->claimPlot($plot, $sender->getName(), $name)) {
+		if($this->getOwningPlugin()->claimPlot($plot, $sender->getName(), $name)) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("claim.success"));
 		}else{
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
@@ -65,7 +65,7 @@ class ClaimSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getLevelNonNull()->getFolderName()))
+		if($player !== null and MyPlot::getInstance()->isLevelLoaded($player->getPosition()->getWorld()->getFolderName()))
 			return new ClaimForm($player);
 		return null;
 	}

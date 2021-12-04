@@ -5,7 +5,7 @@ namespace MyPlot\subcommand;
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class BuySubCommand extends SubCommand
@@ -21,11 +21,11 @@ class BuySubCommand extends SubCommand
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, array $args) : bool {
-		if($this->getPlugin()->getEconomyProvider() === null){
-			$command = new ClaimSubCommand($this->getPlugin(), "claim");
+		if($this->getOwningPlugin()->getEconomyProvider() === null){
+			$command = new ClaimSubCommand($this->getOwningPlugin(), "claim");
 			return $command->execute($sender, []);
 		}
-		$plot = $this->getPlugin()->getPlotByPosition($sender->asPosition());
+		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null){
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -38,12 +38,12 @@ class BuySubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("buy.notforsale"));
 			return true;
 		}
-		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($sender);
+		$maxPlots = $this->getOwningPlugin()->getMaxPlotsOfPlayer($sender);
 		$plotsOfPlayer = 0;
-		foreach($this->getPlugin()->getPlotLevels() as $level => $settings) {
-			$level = $this->getPlugin()->getServer()->getLevelByName((string)$level);
-			if($level !== null and !$level->isClosed()) {
-				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
+		foreach($this->getOwningPlugin()->getPlotLevels() as $level => $settings) {
+			$level = $this->getOwningPlugin()->getServer()->getWorldManager()->getWorldByName((string)$level);
+			if($level !== null and $level->isLoaded()) {
+				$plotsOfPlayer += count($this->getOwningPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
@@ -55,8 +55,8 @@ class BuySubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("buy.confirm", ["{$plot->X};{$plot->Z}", $price]));
 			return true;
 		}
-		$oldOwner = $this->getPlugin()->getServer()->getPlayer($plot->owner);
-		if($this->getPlugin()->buyPlot($plot, $sender)) {
+		$oldOwner = $this->getOwningPlugin()->getServer()->getPlayerByPrefix($plot->owner);
+		if($this->getOwningPlugin()->buyPlot($plot, $sender)) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("buy.success", ["{$plot->X};{$plot->Z}", $price]));
 			if($oldOwner !== null)
 				$oldOwner->sendMessage($this->translateString("buy.sold", [$sender->getName(), "{$plot->X};{$plot->Z}", $price])); // TODO: queue messages for sending when player rejoins

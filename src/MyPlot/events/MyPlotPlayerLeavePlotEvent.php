@@ -4,11 +4,13 @@ namespace MyPlot\events;
 
 use MyPlot\Plot;
 use pocketmine\event\Cancellable;
-use pocketmine\Player;
+use pocketmine\event\CancellableTrait;
+use pocketmine\player\Player;
 
 class MyPlotPlayerLeavePlotEvent extends MyPlotPlotEvent implements Cancellable {
-	/** @var Player $player */
-	private $player;
+    use CancellableTrait;
+
+	private Player $player;
 
 	/**
 	 * MyPlotPlayerLeavePlotEvent constructor.

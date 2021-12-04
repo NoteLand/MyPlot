@@ -2,38 +2,23 @@
 declare(strict_types=1);
 namespace MyPlot;
 
-use pocketmine\level\Position;
-use pocketmine\math\Vector3;
+use pocketmine\math\Facing;
 
 class Plot
 {
-
-	/** @var string $levelName */
-	public $levelName = "";
-	/** @var int $X */
-	public $X = -0;
-	/** @var int $Z */
-	public $Z = -0;
-	/** @var string $name */
-	public $name = "";
-	/** @var string $owner */
-	public $owner = "";
-	/** @var string[] $helpers */
-	public $helpers = [];
-	/** @var string[] $denied */
-	public $denied = [];
-	/** @var string $biome */
-	public $biome = "PLAINS";
-	/** @var bool $pvp */
-	public $pvp = true;
-	/** @var float $price */
-	public $price = 0.0;
-    /** @var array $merged_plots */
-	public $merged_plots = [];
-    /** @var array $flags */
-    public $flags = [];
-	/** @var int $id */
-	public $id = -1;
+	public string $levelName = "";
+	public int $X = -0;
+	public int $Z = -0;
+	public string $name = "";
+	public string $owner = "";
+	public array $helpers = [];
+	public array $denied = [];
+	public string $biome = "PLAINS";
+	public bool $pvp = true;
+	public float $price = 0.0;
+	public array $merged_plots = [];
+    public array $flags = [];
+	public int $id = -1;
 
 	/**
 	 * Plot constructor.
@@ -227,16 +212,16 @@ class Plot
 		$sidePlot = MyPlot::getInstance()->getPlotByPosition($sidePos);
 		if($sidePlot === null) {
 			switch($side) {
-				case Vector3::SIDE_NORTH:
+				case Facing::NORTH:
 					$sidePlot = new self($this->levelName, $this->X, $this->Z - $step);
 				break;
-				case Vector3::SIDE_SOUTH:
+				case Facing::SOUTH:
 					$sidePlot = new self($this->levelName, $this->X, $this->Z + $step);
 				break;
-				case Vector3::SIDE_WEST:
+				case Facing::WEST:
 					$sidePlot = new self($this->levelName, $this->X - $step, $this->Z);
 				break;
-				case Vector3::SIDE_EAST:
+				case Facing::EAST:
 					$sidePlot = new self($this->levelName, $this->X + $step, $this->Z);
 				break;
 				default:

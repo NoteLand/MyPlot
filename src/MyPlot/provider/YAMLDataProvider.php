@@ -4,14 +4,10 @@ namespace MyPlot\provider;
 
 use MyPlot\MyPlot;
 use MyPlot\Plot;
-use pocketmine\level\Position;
 use pocketmine\utils\Config;
 
 class YAMLDataProvider extends DataProvider {
-	/** @var MyPlot $plugin */
-	protected $plugin;
-	/** @var Config $yaml */
-	private $yaml;
+	private Config $yaml;
 
 	/**
 	 * YAMLDataProvider constructor.
@@ -37,7 +33,8 @@ class YAMLDataProvider extends DataProvider {
 		}
 		$this->yaml->set("plots", $plots);
 		$this->cachePlot($plot);
-		return $this->yaml->save();
+        $this->yaml->save();
+		return true;
 	}
 
 	public function deletePlot(Plot $plot) : bool {
@@ -46,7 +43,8 @@ class YAMLDataProvider extends DataProvider {
 		$this->yaml->set("plots", $plots);
 		$plot = new Plot($plot->levelName, $plot->X, $plot->Z);
 		$this->cachePlot($plot);
-		return $this->yaml->save();
+        $this->yaml->save();
+        return true;
 	}
 
 	public function getPlot(string $levelName, int $X, int $Z) : Plot {

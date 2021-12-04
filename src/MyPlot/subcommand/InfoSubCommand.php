@@ -7,7 +7,7 @@ use MyPlot\forms\subforms\InfoForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class InfoSubCommand extends SubCommand
@@ -28,8 +28,8 @@ class InfoSubCommand extends SubCommand
 				$key = ((int) $args[1] - 1) < 1 ? 1 : ((int) $args[1] - 1);
 				/** @var Plot[] $plots */
 				$plots = [];
-				foreach($this->getPlugin()->getPlotLevels() as $levelName => $settings) {
-					$plots = array_merge($plots, $this->getPlugin()->getPlotsOfPlayer($args[0], $levelName));
+				foreach($this->getOwningPlugin()->getPlotLevels() as $levelName => $settings) {
+					$plots = array_merge($plots, $this->getOwningPlugin()->getPlotsOfPlayer($args[0], $levelName));
 				}
 				if(isset($plots[$key])) {
 					$plot = $plots[$key];
@@ -43,7 +43,7 @@ class InfoSubCommand extends SubCommand
 				return false;
 			}
 		}else{
-			$plot = $this->getPlugin()->getPlotByPosition($sender);
+			$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
 			if($plot === null) {
 				$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 				return true;
@@ -56,7 +56,7 @@ class InfoSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and $this->getPlugin()->getPlotByPosition($player) instanceof Plot)
+		if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
 			return new InfoForm($player);
 		return null;
 	}

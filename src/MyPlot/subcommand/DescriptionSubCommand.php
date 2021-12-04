@@ -4,11 +4,10 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\DescriptionForm;
-use MyPlot\forms\subforms\NameForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class DescriptionSubCommand extends SubCommand
@@ -27,7 +26,7 @@ class DescriptionSubCommand extends SubCommand
         if(count($args) === 0) {
             return false;
         }
-        $plot = $this->getPlugin()->getPlotByPosition($sender);
+        $plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
         if($plot === null) {
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
             return true;
@@ -46,7 +45,7 @@ class DescriptionSubCommand extends SubCommand
     }
 
     public function getForm(?Player $player = null) : ?MyPlotForm {
-        if($player !== null and $this->getPlugin()->getPlotByPosition($player) instanceof Plot)
+        if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
             return new DescriptionForm($player);
         return null;
     }

@@ -7,7 +7,7 @@ use dktapps\pmforms\element\Input;
 use MyPlot\forms\ComplexMyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\form\FormValidationException;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class ClaimForm extends ComplexMyPlotForm {
@@ -16,8 +16,9 @@ class ClaimForm extends ComplexMyPlotForm {
 	private $player;
 
 	public function __construct(Player $player) {
+	    $this->player = $player;
 		$plugin = MyPlot::getInstance();
-		$plot = $plugin->getPlotByPosition($player);
+		$plot = $plugin->getPlotByPosition($player->getPosition());
 		if($plot === null) {
 			$plot = new \stdClass();
 			$plot->X = "";
@@ -42,18 +43,18 @@ class ClaimForm extends ComplexMyPlotForm {
 					"2",
 					$plugin->getLanguage()->get("claim.formworld"),
 					"world",
-					$player->getLevelNonNull()->getFolderName()
+					$player->getPosition()->getWorld()->getFolderName()
 				)
 			],
 			function(Player $player, CustomFormResponse $response) use ($plugin) : void {
 				if(is_numeric($response->getString("0")) and is_numeric($response->getString("1")))
 					$data = MyPlot::getInstance()->getProvider()->getPlot(
-						$response->getString("2") === '' ? $this->player->getLevelNonNull()->getFolderName() : $response->getString("2"),
+						$response->getString("2") === '' ? $this->player->getPosition()->getWorld()->getFolderName() : $response->getString("2"),
 						(int)$response->getString("0"),
 						(int)$response->getString("1")
 					);
 				elseif($response->getString("0") === '' or $response->getString("1") === '') {
-					$plot = MyPlot::getInstance()->getPlotByPosition($this->player);
+					$plot = MyPlot::getInstance()->getPlotByPosition($this->player->getPosition());
 					if($plot === null) {
 						$this->player->sendForm(new self($this->player));
 						throw new FormValidationException("Unexpected form data returned");
@@ -74,8 +75,8 @@ class ClaimForm extends ComplexMyPlotForm {
 				$maxPlots = $plugin->getMaxPlotsOfPlayer($player);
 				$plotsOfPlayer = 0;
 				foreach($plugin->getPlotLevels() as $level => $settings) {
-					$level = $plugin->getServer()->getLevelByName((string)$level);
-					if($level !== null and !$level->isClosed()) {
+					$level = $plugin->getServer()->getWorldManager()->getWorldByName((string)$level);
+					if($level !== null and $level->isLoaded()) {
 						$plotsOfPlayer += count($plugin->getPlotsOfPlayer($player->getName(), $level->getFolderName()));
 					}
 				}
