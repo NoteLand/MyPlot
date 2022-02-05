@@ -6,9 +6,12 @@ use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\scheduler\Task;
+use pocketmine\world\format\BiomeArray;
+use pocketmine\world\format\Chunk;
 use pocketmine\world\Position;
 use pocketmine\world\World;
 
@@ -90,15 +93,17 @@ class ClearPlotTask extends Task {
 			$this->pos->z = $this->plotBeginPos->z;
 			$this->pos->x++;
 		}
-        foreach($this->plugin->getPlotChunks($this->plot) as $chunk) {
-            foreach($chunk->getTiles() as $tile) {
-                if(($plot = $this->plugin->getPlotByPosition($tile->getPosition())) != null) {
-                    if($this->plot->isSame($plot)) {
-                        $tile->close();
-                    }
-                }
-            }
-        }
+		foreach($this->plugin->getPlotChunks($this->plot) as $hash) {
+			World::getXZ($hash, $chunkX, $chunkZ);
+			$chunk = $this->level->getChunk($chunkX, $chunkZ) ?? new Chunk([], BiomeArray::fill(BiomeIds::PLAINS), false);
+			foreach($chunk->getTiles() as $tile) {
+				if(($plot = $this->plugin->getPlotByPosition($tile->getPosition())) != null) {
+					if($this->plot->isSame($plot)) {
+						$tile->close();
+					}
+				}
+			}
+		}
 		$this->plugin->getScheduler()->scheduleDelayedTask(new ClearBorderTask($this->plugin, $this->plot), 1);
 		$this->plugin->getLogger()->debug("Plot Clear task completed at {$this->plotBeginPos->x};{$this->plotBeginPos->z}");
 	}
