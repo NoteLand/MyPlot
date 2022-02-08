@@ -20,6 +20,7 @@ use MyPlot\provider\EconomySProvider;
 use MyPlot\provider\JSONDataProvider;
 use MyPlot\provider\MySQLProvider;
 use MyPlot\provider\SQLiteDataProvider;
+use MyPlot\provider\SQLiteV2DataProvider;
 use MyPlot\provider\YAMLDataProvider;
 use MyPlot\task\ChangeBorderTask;
 use MyPlot\task\ClearBorderTask;
@@ -1096,6 +1097,15 @@ class MyPlot extends PluginBase
 							$this->dataProvider = new JSONDataProvider($this, $cacheSize);
 						}
 					break;
+					case "sqliteV2":
+						if(extension_loaded("sqlite3")) {
+							$this->getLogger()->warning("SQLiteV2 is experimental!");
+							$this->dataProvider = new SQLiteV2DataProvider($this, $cacheSize);
+						}else {
+							$this->getLogger()->warning("SQLite3 is not installed in your php build! JSON will be used instead.");
+							$this->dataProvider = new JSONDataProvider($this, $cacheSize);
+						}
+						break;
 					case "json":
 					default:
 						$this->dataProvider = new JSONDataProvider($this, $cacheSize);

@@ -25,7 +25,7 @@ Custom Messages: false
 UI Forms: true
 
 # The data provider where plot data is stored.
-# Current providers are: sqlite, mysql, json, and yaml.
+# Current providers are: sqlite, mysql, json, yaml and sqliteV2.
 DataProvider: sqlite
 
 # contains settings for mysql provider to use when selected
