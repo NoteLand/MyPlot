@@ -151,7 +151,7 @@ class EventListener implements Listener
 				 * so the leaves won't go outside the plot
 				 */
 				$block = $event->getBlock();
-				$maxLengthLeaves = ($block->getIdInfo()->getVariant() == TreeType::SPRUCE()) ? 3 : 2;
+				$maxLengthLeaves = ($block->getIdInfo()->getVariant() == TreeType::SPRUCE()->getMagicNumber()) ? 3 : 2;
 				$beginPos = $this->plugin->getPlotPosition($plot);
 				$endPos = clone $beginPos;
 				$beginPos->x += $maxLengthLeaves;
