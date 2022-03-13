@@ -96,6 +96,8 @@ permissions:
     default: true
   myplot.command.chat:
     default: true
+  myplot.command.setowner:
+    default: op
   myplot.admin:
     default: op
   myplot.admin.clear:

@@ -12,7 +12,7 @@ use pocketmine\utils\TextFormat;
 
 class SetOwnerSubCommand extends SubCommand {
 	public function canUse(CommandSender $sender) : bool {
-		return ($sender instanceof Player) and $sender->hasPermission("myplot.admin.setowner");
+		return ($sender instanceof Player) and $sender->hasPermission("myplot.command.setowner");
 	}
 
 	/**
