@@ -98,6 +98,8 @@ permissions:
     default: true
   myplot.command.setowner:
     default: op
+  myplot.command.kick:
+    default: true
   myplot.admin:
     default: op
   myplot.admin.clear:
@@ -155,6 +157,8 @@ permissions:
   myplot.admin.spawn:
     default: op
   myplot.admin.chat:
+    default: op
+  myplot.admin.kick:
     default: op
   myplot.claimplots:
     default: op
