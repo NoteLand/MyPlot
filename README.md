@@ -5,7 +5,7 @@
 - [x] /p description
 - [x] /p chat
 - [x] /p spawn
-- [x] /p merge (not published yet, but finished)
+- [ ] /p merge
 - [ ] /p flags
 - [x] /p home "name"
 - [x] /p wall
