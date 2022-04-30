@@ -27,7 +27,7 @@ class AddHelperSubCommand extends SubCommand
 			return false;
 		}
 		$helperName = $args[0];
-		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -36,10 +36,10 @@ class AddHelperSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$helper = $this->getOwningPlugin()->getServer()->getPlayerByPrefix($helperName);
+		$helper = $this->getPlugin()->getServer()->getPlayerByPrefix($helperName);
 		if($helper === null)
-			$helper = $this->getOwningPlugin()->getServer()->getOfflinePlayer($helperName);
-		if($this->getOwningPlugin()->addPlotHelper($plot, $helper->getName())) {
+			$helper = $this->getPlugin()->getServer()->getOfflinePlayer($helperName);
+		if($this->getPlugin()->addPlotHelper($plot, $helper->getName())) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("addhelper.success", [$helper->getName()]));
 		}else{
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
@@ -48,7 +48,7 @@ class AddHelperSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and ($plot = $this->getOwningPlugin()->getPlotByPosition($player->getPosition())) instanceof Plot)
+		if($player !== null and ($plot = $this->getPlugin()->getPlotByPosition($player->getPosition())) instanceof Plot)
 			return new AddHelperForm($plot);
 		return null;
 	}

@@ -29,8 +29,8 @@ class SpawnSubCommand extends SubCommand
      */
     public function execute(CommandSender $sender, array $args): bool
     {
-        if (($plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition())) === null) {
-            if (($plot = $this->getOwningPlugin()->getPlotBorderingPosition($sender->getPosition())) === null) {
+        if (($plot = $this->getPlugin()->getPlotByPosition($sender->getPosition())) === null) {
+            if (($plot = $this->getPlugin()->getPlotBorderingPosition($sender->getPosition())) === null) {
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("notinplot"));
                 return true;
             }

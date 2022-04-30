@@ -25,7 +25,7 @@ class HomeSubCommand extends SubCommand
     public function execute(CommandSender $sender, array $args): bool
     {
         if (isset($args[0]) && is_numeric($args[0]) === false) {
-            if (!$s = $this->getOwningPlugin()->getServer()->getPlayerByPrefix($args[0])) {
+            if (!$s = $this->getPlugin()->getServer()->getPlayerByPrefix($args[0])) {
                 $p = $args[0];
             } else {
                 $p = $s->getName();
@@ -36,7 +36,7 @@ class HomeSubCommand extends SubCommand
                 $plotNumber = (int)1;
             }
             $levelName = $sender->getPosition()->getWorld()->getFolderName();
-            $plots = $this->getOwningPlugin()->getPlotsOfPlayer($p, $levelName);
+            $plots = $this->getPlugin()->getPlotsOfPlayer($p, $levelName);
             if (empty($plots)) {
                 $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("home.noplots.target"));
                 return true;
@@ -52,7 +52,7 @@ class HomeSubCommand extends SubCommand
                 return ($plot1->levelName < $plot2->levelName) ? -1 : 1;
             });
             $plot = $plots[$plotNumber - 1];
-            if ($this->getOwningPlugin()->teleportPlayerToPlot($sender, $plot)) {
+            if ($this->getPlugin()->teleportPlayerToPlot($sender, $plot)) {
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("home.success", [$plot, $plot->levelName]));
             } else {
                 $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("home.error"));
@@ -69,7 +69,7 @@ class HomeSubCommand extends SubCommand
         }
 
         $levelName = $sender->getPosition()->getWorld()->getFolderName();
-        $plots = $this->getOwningPlugin()->getPlotsOfPlayer($p, $levelName);
+        $plots = $this->getPlugin()->getPlotsOfPlayer($p, $levelName);
         if (empty($plots)) {
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("home.noplots"));
             return true;
@@ -85,7 +85,7 @@ class HomeSubCommand extends SubCommand
             return ($plot1->levelName < $plot2->levelName) ? -1 : 1;
         });
         $plot = $plots[$plotNumber - 1];
-        if ($this->getOwningPlugin()->teleportPlayerToPlot($sender, $plot)) {
+        if ($this->getPlugin()->teleportPlayerToPlot($sender, $plot)) {
             $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("home.success", [$plot, $plot->levelName]));
         } else {
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("home.error"));
@@ -94,7 +94,7 @@ class HomeSubCommand extends SubCommand
     }
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and count($this->getOwningPlugin()->getPlotsOfPlayer($player->getName(), $player->getPosition()->getWorld()->getFolderName())) > 0)
+		if($player !== null and count($this->getPlugin()->getPlotsOfPlayer($player->getName(), $player->getPosition()->getWorld()->getFolderName())) > 0)
 			return new HomeForm($player);
 		return null;
 	}

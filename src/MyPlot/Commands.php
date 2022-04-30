@@ -43,16 +43,18 @@ use pocketmine\network\mcpe\protocol\types\command\CommandData;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\player\Player;
-use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginOwned;
+use pocketmine\plugin\PluginOwnedTrait;
 use pocketmine\utils\TextFormat;
 
 class Commands extends Command implements PluginOwned
 {
+	use PluginOwnedTrait;
+
 	/** @var SubCommand[] $subCommands */
-	private $subCommands = [];
+	private array $subCommands = [];
 	/** @var SubCommand[] $aliasSubCommands */
-	private $aliasSubCommands = [];
+	private array $aliasSubCommands = [];
 
 	/**
 	 * Commands constructor.
@@ -66,6 +68,7 @@ class Commands extends Command implements PluginOwned
             [$plugin->getLanguage()->get("command.alias")]
         );
 		$this->setPermission("myplot.command");
+		$this->owningPlugin = $plugin;
 		$this->loadSubCommand(new AddHelperSubCommand($plugin, "addhelper"));
 		$this->loadSubCommand(new AutoSubCommand($plugin, "auto"));
         $this->loadSubCommand(new BiomeSubCommand($plugin, "biome"));
@@ -108,91 +111,43 @@ class Commands extends Command implements PluginOwned
 
 		$autofill = $plugin->getServer()->getPluginManager()->getPlugin("EasyCommandAutofill");
 		if($autofill instanceof Main) {
-			$data = new CommandData();
-			$data->commandName = $this->getName();
-			$data->commandDescription = $this->getDescription();
+			$overloads = [];
 			$enumCount = 0;
 			$tree = 0;
 			ksort($this->subCommands, SORT_NATURAL | SORT_FLAG_CASE);
 			foreach($this->subCommands as $subCommandName => $subCommand) {
-				$parameter = new CommandParameter();
-				$parameter->paramName = "MyPlotSubCommand";
-				$parameter->paramType = AvailableCommandsPacket::ARG_FLAG_ENUM | AvailableCommandsPacket::ARG_FLAG_VALID | $enumCount++;
-				$enum = new CommandEnum();
-				$enum->enumName = $subCommandName;
-				$enum->enumValues = [$subCommandName];
-				$parameter->enum = $enum;
-				$parameter->flags = 1;
-				$parameter->isOptional = false;
-				$data->overloads[$tree][0] = $parameter;
+				$overloads[$tree][0] = CommandParameter::enum("MyPlotSubCommand", new CommandEnum($subCommandName, [$subCommandName]), CommandParameter::FLAG_FORCE_COLLAPSE_ENUM, false);
 
 				$usage = $subCommand->getUsage();
 				$commandString = explode(" ", $usage)[0];
-				preg_match_all('/(\s?[<\[]?\s*)([a-zA-Z0-9|]+)(?:\s*:?\s*)(string|int|x y z|float|mixed|target|message|text|json|command|boolean|bool)?(?:\s*[>\]]?\s?)/iu', $usage, $matches, PREG_PATTERN_ORDER, strlen($commandString));
+				preg_match_all('/(\s?[<\[]?\s*)([a-zA-Z0-9|]+)\s*:?\s*(string|int|x y z|float|mixed|target|message|text|json|command|boolean|bool)?\s*[>\]]?\s?/iu', $usage, $matches, PREG_PATTERN_ORDER, strlen($commandString));
 				$argumentCount = count($matches[0])-1;
 				for($argNumber = 1; $argNumber <= $argumentCount; ++$argNumber) {
-					$optional = $matches[1][$argNumber] === '' ? false : ($matches[1][$argNumber] === '[');
+					$optional = $matches[1][$argNumber] === '[';
 					$paramName = strtolower($matches[2][$argNumber]);
 					if(stripos($paramName, "|") === false) {
-						switch(strtolower($matches[3][$argNumber])) {
-							default:
-							case "string":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_STRING;
-							break;
-							case "int":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_INT;
-							break;
-							case "x y z":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_POSITION;
-							break;
-							case "float":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_FLOAT;
-							break;
-							case "target":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_TARGET;
-							break;
-							case "message":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_MESSAGE;
-							break;
-							case "json":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_JSON;
-							break;
-							case "command":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_COMMAND;
-							break;
-							case "boolean":
-							case "mixed":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_VALUE;
-							break;
-							case "text":
-								$paramType = AvailableCommandsPacket::ARG_FLAG_VALID | AvailableCommandsPacket::ARG_TYPE_RAWTEXT;
-							break;
-						}
-						$parameter = new CommandParameter();
-						$parameter->paramName = $paramName;
-						$parameter->paramType = $paramType;
-						$parameter->isOptional = $optional;
-						$data->overloads[$tree][$argNumber] = $parameter;
+						$paramType = match (strtolower($matches[3][$argNumber])) {
+							default => AvailableCommandsPacket::ARG_TYPE_STRING,
+							"int" => AvailableCommandsPacket::ARG_TYPE_INT,
+							"x y z" => AvailableCommandsPacket::ARG_TYPE_POSITION,
+							"float" => AvailableCommandsPacket::ARG_TYPE_FLOAT,
+							"target" => AvailableCommandsPacket::ARG_TYPE_TARGET,
+							"message" => AvailableCommandsPacket::ARG_TYPE_MESSAGE,
+							"json" => AvailableCommandsPacket::ARG_TYPE_JSON,
+							"command" => AvailableCommandsPacket::ARG_TYPE_COMMAND,
+							"boolean", "bool", "mixed" => AvailableCommandsPacket::ARG_TYPE_VALUE,
+							"text" => AvailableCommandsPacket::ARG_TYPE_RAWTEXT,
+						};
+						$parameter = CommandParameter::standard($paramName, $paramType, 0, $optional);
 					}else{
 						$enumValues = explode("|", $paramName);
-						$parameter = new CommandParameter();
-						$parameter->paramName = $paramName;
-						$parameter->paramType = AvailableCommandsPacket::ARG_FLAG_ENUM | AvailableCommandsPacket::ARG_FLAG_VALID | $enumCount++;
-						$enum = new CommandEnum();
-						$enum->enumName = $data->commandName." Enum#".$enumCount; // TODO: change to readable name
-						$enum->enumValues = $enumValues;
-						$parameter->enum = $enum;
-						$parameter->flags = 1;
-						$parameter->isOptional = $optional;
-						$data->overloads[$tree][$argNumber] = $parameter;
+						$parameter = CommandParameter::enum($paramName, new CommandEnum($this->getName()." Enum#".$enumCount, $enumValues), CommandParameter::FLAG_FORCE_COLLAPSE_ENUM, $optional);
 					}
+					$overloads[$tree][$argNumber] = $parameter;
 				}
 				$tree++;
 			}
-			$data->aliases = new CommandEnum();
-			$data->aliases->enumName = ucfirst($this->getName()) . "Aliases";
-			$data->aliases->enumValues = array_merge([$this->getName()], $this->getAliases());
-			$autofill->addManualOverride($this->getName(), $data);
+			$autofill->addManualOverride($this->getName(), new CommandData($this->getName(), $this->getDescription(), 0, 1, new CommandEnum(ucfirst($this->getName()) . "Aliases", array_merge([$this->getName()], $this->getAliases())), $overloads));
 			$plugin->getLogger()->debug("Command Autofill Enabled");
 		}
 	}
@@ -260,9 +215,4 @@ class Commands extends Command implements PluginOwned
 		}
 		return true;
 	}
-
-    public function getOwningPlugin() : Plugin
-    {
-        return MyPlot::getInstance();
-    }
 }

@@ -22,7 +22,7 @@ class HomesSubCommand extends SubCommand
 	 */
 	public function execute(CommandSender $sender, array $args) : bool {
 		$levelName = $args[0] ?? $sender->getPosition()->getWorld()->getFolderName();
-		$plots = $this->getOwningPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
+		$plots = $this->getPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
 		if(count($plots) === 0) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("homes.noplots"));
 			return true;

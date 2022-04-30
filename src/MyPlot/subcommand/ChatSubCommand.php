@@ -29,7 +29,7 @@ class ChatSubCommand extends SubCommand
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, array $args): bool{
-	    $plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+	    $plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("notinplot"));
 			return true;
@@ -50,15 +50,15 @@ class ChatSubCommand extends SubCommand
                 $plot->setFlag("chat", true);
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("chat.toggle_on"));
             }
-		    $this->getOwningPlugin()->getProvider()->savePlot($plot);
+		    $this->getPlugin()->getProvider()->savePlot($plot);
 		    return true;
         }
 
 		$message = implode(" ", $args);
 
-		$players = $this->getOwningPlugin()->getServer()->getOnlinePlayers();
+		$players = $this->getPlugin()->getServer()->getOnlinePlayers();
 		foreach ($players as $player) {
-			$playerplot = $this->getOwningPlugin()->getPlotByPosition($player->getPosition());
+			$playerplot = $this->getPlugin()->getPlotByPosition($player->getPosition());
 			if ($playerplot !== null) {
 				if ($playerplot === $plot) {
 					$player->sendMessage($this->translateString("chat.format", [$sender->getName(), $message]));
@@ -69,7 +69,7 @@ class ChatSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-        if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
+        if($player !== null and $this->getPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
             return new ChatForm($player);
 		return null;
 	}

@@ -36,7 +36,7 @@ class BiomeSubCommand extends SubCommand
 		if($player === null)
 			return true;
 		$biome = strtoupper($args[0]);
-		$plot = $this->getOwningPlugin()->getPlotByPosition($player->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($player->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -65,7 +65,7 @@ class BiomeSubCommand extends SubCommand
 			}
 			$biome = BiomeRegistry::getInstance()->getBiome(constant(BiomeIds::class."::".$biome));
 		}
-		if($this->getOwningPlugin()->setPlotBiome($plot, $biome)) {
+		if($this->getPlugin()->setPlotBiome($plot, $biome)) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("biome.success", [$biome->getName()]));
 		}else{
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
@@ -74,7 +74,7 @@ class BiomeSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
+		if($player !== null and $this->getPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
 			return new BiomeForm(array_keys(self::BIOMES));
 		return null;
 	}

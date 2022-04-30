@@ -26,7 +26,7 @@ class WarpSubCommand extends SubCommand
 			return false;
 		}
 		$levelName = $args[1] ?? $sender->getPosition()->getWorld()->getFolderName();
-		if(!$this->getOwningPlugin()->isLevelLoaded($levelName)) {
+		if(!$this->getPlugin()->isLevelLoaded($levelName)) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("warp.notinplotworld"));
 			return true;
 		}
@@ -36,12 +36,12 @@ class WarpSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("warp.wrongid"));
 			return true;
 		}
-		$plot = $this->getOwningPlugin()->getProvider()->getPlot($levelName, (int) $plotIdArray[0], (int) $plotIdArray[1]);
+		$plot = $this->getPlugin()->getProvider()->getPlot($levelName, (int) $plotIdArray[0], (int) $plotIdArray[1]);
 		if($plot->owner == "" and !$sender->hasPermission("myplot.admin.warp")) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("warp.unclaimed"));
 			return true;
 		}
-		if($this->getOwningPlugin()->teleportPlayerToPlot($sender, $plot)) {
+		if($this->getPlugin()->teleportPlayerToPlot($sender, $plot)) {
 			$plot = TextFormat::GREEN . $plot . TextFormat::WHITE;
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("warp.success", [$plot]));
 		}else{

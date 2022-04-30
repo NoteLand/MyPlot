@@ -26,7 +26,7 @@ class NameSubCommand extends SubCommand
 		if(count($args) === 0) {
 			return false;
 		}
-		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -35,7 +35,7 @@ class NameSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		if($this->getOwningPlugin()->renamePlot($plot, $args[0])) {
+		if($this->getPlugin()->renamePlot($plot, $args[0])) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("name.success"));
 		}else{
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
@@ -44,7 +44,7 @@ class NameSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
+		if($player !== null and $this->getPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
 			return new NameForm($player);
 		return null;
 	}

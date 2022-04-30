@@ -27,7 +27,7 @@ class BorderSubCommand extends SubCommand
      */
     public function execute(CommandSender $sender, array $args): bool
     {
-        $plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+        $plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
         if($plot === null) {
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
             return true;

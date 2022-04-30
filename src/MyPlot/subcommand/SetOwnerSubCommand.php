@@ -25,24 +25,24 @@ class SetOwnerSubCommand extends SubCommand {
 		if(count($args) === 0) {
 			return false;
 		}
-		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
 		}
-		$maxPlots = $this->getOwningPlugin()->getMaxPlotsOfPlayer($sender);
+		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($sender);
 		$plotsOfPlayer = 0;
-		foreach($this->getOwningPlugin()->getPlotLevels() as $level => $settings) {
-			$level = $this->getOwningPlugin()->getServer()->getWorldManager()->getWorldByName($level);
+		foreach($this->getPlugin()->getPlotLevels() as $level => $settings) {
+			$level = $this->getPlugin()->getServer()->getWorldManager()->getWorldByName($level);
 			if($level !== null and $level->isLoaded()) {
-				$plotsOfPlayer += count($this->getOwningPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
+				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("setowner.maxplots", [$maxPlots]));
 			return true;
 		}
-		if($this->getOwningPlugin()->claimPlot($plot, $args[0])) {
+		if($this->getPlugin()->claimPlot($plot, $args[0])) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("setowner.success", [$args[0]]));
 		}else{
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
@@ -51,7 +51,7 @@ class SetOwnerSubCommand extends SubCommand {
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
+		if($player !== null and $this->getPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
 			return new OwnerForm();
 		return null;
 	}

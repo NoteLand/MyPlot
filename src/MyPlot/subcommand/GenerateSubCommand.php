@@ -32,9 +32,9 @@ class GenerateSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("generate.exists", [$levelName]));
 			return true;
 		}
-		if($this->getOwningPlugin()->generateLevel($levelName, $args[2] ?? MyPlotGenerator::NAME)) {
+		if($this->getPlugin()->generateLevel($levelName, $args[2] ?? MyPlotGenerator::NAME)) {
 			if(isset($args[1]) and $args[1] == true and $sender instanceof Player) {
-				$this->getOwningPlugin()->teleportPlayerToPlot($sender, new Plot($levelName, 0, 0));
+				$this->getPlugin()->teleportPlayerToPlot($sender, new Plot($levelName, 0, 0));
 			}
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("generate.success", [$levelName]));
 		}else{

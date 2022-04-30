@@ -32,8 +32,8 @@ class CloneSubCommand extends SubCommand
 			return true;
 		}
 		$levelName = $args[1] ?? $sender->getPosition()->getWorld()->getFolderName();
-		$selectedPlot = $this->getOwningPlugin()->getProvider()->getPlot($levelName, (int) $plotIdArray[0], (int) $plotIdArray[1]);
-		$standingPlot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+		$selectedPlot = $this->getPlugin()->getProvider()->getPlot($levelName, (int) $plotIdArray[0], (int) $plotIdArray[1]);
+		$standingPlot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
 		if($standingPlot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -46,13 +46,13 @@ class CloneSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$plotLevel = $this->getOwningPlugin()->getLevelSettings($standingPlot->levelName);
-		$economy = $this->getOwningPlugin()->getEconomyProvider();
+		$plotLevel = $this->getPlugin()->getLevelSettings($standingPlot->levelName);
+		$economy = $this->getPlugin()->getEconomyProvider();
 		if($economy !== null and !$economy->reduceMoney($sender, $plotLevel->clonePrice)) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("clone.nomoney"));
 			return true;
 		}
-		if($this->getOwningPlugin()->clonePlot($selectedPlot, $standingPlot)) {
+		if($this->getPlugin()->clonePlot($selectedPlot, $standingPlot)) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("clone.success", [$selectedPlot->__toString(), $standingPlot->__toString()]));
 		}else{
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));

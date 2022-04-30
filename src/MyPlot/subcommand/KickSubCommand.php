@@ -24,7 +24,7 @@ class KickSubCommand extends SubCommand
 	 */
 	public function execute(CommandSender $sender, array $args) : bool {
 		if (!isset($args[0])) return false;
-		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -33,12 +33,12 @@ class KickSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$target = $this->getOwningPlugin()->getServer()->getPlayerByPrefix($args[0]);
+		$target = $this->getPlugin()->getServer()->getPlayerByPrefix($args[0]);
 		if ($target === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("kick.noPlayer"));
 			return true;
 		}
-		if (($targetPlot = $this->getOwningPlugin()->getPlotByPosition($target->getPosition())) === null or !$plot->isSame($targetPlot)) {
+		if (($targetPlot = $this->getPlugin()->getPlotByPosition($target->getPosition())) === null or !$plot->isSame($targetPlot)) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("kick.notInPlot"));
 			return true;
 		}
@@ -47,7 +47,7 @@ class KickSubCommand extends SubCommand
 			$target->sendMessage($this->translateString("kick.attemptkick", [$target->getName()]));
 			return true;
 		}
-		if ($this->getOwningPlugin()->teleportPlayerToPlot($target, $plot)) {
+		if ($this->getPlugin()->teleportPlayerToPlot($target, $plot)) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("kick.success1", [$target->getName(), $plot->__toString()]));
 			$target->sendMessage($this->translateString("kick.success2", [$sender->getName(), $plot->__toString()]));
 			return true;
@@ -57,7 +57,7 @@ class KickSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
+		if($player !== null and $this->getPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
 			return new KickForm();
 		return null;
 	}

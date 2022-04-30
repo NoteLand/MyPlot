@@ -27,7 +27,7 @@ class GiveSubCommand extends SubCommand
 			return false;
 		}
 		$newOwner = $args[0];
-		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -36,7 +36,7 @@ class GiveSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$newOwner = $this->getOwningPlugin()->getServer()->getPlayerByPrefix($newOwner);
+		$newOwner = $this->getPlugin()->getServer()->getPlayerByPrefix($newOwner);
 		if(!$newOwner instanceof Player) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("give.notonline"));
 			return true;
@@ -44,12 +44,12 @@ class GiveSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("give.toself"));
 			return true;
 		}
-		$maxPlots = $this->getOwningPlugin()->getMaxPlotsOfPlayer($newOwner);
+		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($newOwner);
 		$plotsOfPlayer = 0;
-		foreach($this->getOwningPlugin()->getPlotLevels() as $level => $settings) {
-			$level = $this->getOwningPlugin()->getServer()->getWorldManager()->getWorldByName((string)$level);
+		foreach($this->getPlugin()->getPlotLevels() as $level => $settings) {
+			$level = $this->getPlugin()->getServer()->getWorldManager()->getWorldByName((string)$level);
 			if($level !== null and $level->isLoaded()) {
-				$plotsOfPlayer += count($this->getOwningPlugin()->getPlotsOfPlayer($newOwner->getName(), $level->getFolderName()));
+				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($newOwner->getName(), $level->getFolderName()));
 			}
 		}
 		if($plotsOfPlayer >= $maxPlots) {
@@ -57,7 +57,7 @@ class GiveSubCommand extends SubCommand
 			return true;
 		}
 		if(count($args) == 2 and $args[1] == $this->translateString("confirm")) {
-			if($this->getOwningPlugin()->claimPlot($plot, $newOwner->getName())) {
+			if($this->getPlugin()->claimPlot($plot, $newOwner->getName())) {
 				$plotId = TextFormat::GREEN . $plot . TextFormat::WHITE;
 				$oldOwnerName = TextFormat::GREEN . $sender->getName() . TextFormat::WHITE;
 				$newOwnerName = TextFormat::GREEN . $newOwner->getName() . TextFormat::WHITE;
@@ -75,7 +75,7 @@ class GiveSubCommand extends SubCommand
 	}
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
-		if($player !== null and $this->getOwningPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
+		if($player !== null and $this->getPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
 			return new GiveForm();
 		return null;
 	}

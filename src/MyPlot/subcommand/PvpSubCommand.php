@@ -21,7 +21,7 @@ class PvpSubCommand extends SubCommand {
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, array $args) : bool {
-		$plot = $this->getOwningPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
 		if($plot === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("notinplot"));
 			return true;
@@ -30,12 +30,12 @@ class PvpSubCommand extends SubCommand {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("notowner"));
 			return true;
 		}
-		$levelSettings = $this->getOwningPlugin()->getLevelSettings($sender->getPosition()->getWorld()->getFolderName());
+		$levelSettings = $this->getPlugin()->getLevelSettings($sender->getPosition()->getWorld()->getFolderName());
 		if($levelSettings->restrictPVP) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("pvp.world"));
 			return true;
 		}
-		if($this->getOwningPlugin()->setPlotPvp($plot, !$plot->pvp)) {
+		if($this->getPlugin()->setPlotPvp($plot, !$plot->pvp)) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("pvp.success", [!$plot->pvp ? "enabled" : "disabled"]));
 		}else {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("error"));
