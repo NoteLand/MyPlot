@@ -9,7 +9,7 @@ use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginOwned;
 
-abstract class SubCommand implements PluginOwned
+abstract class SubCommand
 {
     private MyPlot $plugin;
     private string $name;
