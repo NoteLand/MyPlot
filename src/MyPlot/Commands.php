@@ -79,7 +79,7 @@ class Commands extends Command implements PluginOwned
         $this->loadSubCommand(new ChatSubCommand($plugin, "chat"));
         $this->loadSubCommand(new ClaimSubCommand($plugin, "claim"));
 		$this->loadSubCommand(new ClearSubCommand($plugin, "clear"));
-        $styler = $this->getOwningPlugin()->getServer()->getPluginManager()->getPlugin("WorldStyler");
+        $styler = $this->owningPlugin->getServer()->getPluginManager()->getPlugin("WorldStyler");
         if($styler !== null) {
             $this->loadSubCommand(new CloneSubCommand($plugin, "clone"));
         }
@@ -183,8 +183,7 @@ class Commands extends Command implements PluginOwned
 	 * @throws \ReflectionException
 	 */
 	public function execute(CommandSender $sender, string $alias, array $args) : bool {
-		/** @var MyPlot $plugin */
-		$plugin = $this->getOwningPlugin();
+		$plugin = $this->owningPlugin;
 		if($plugin->isDisabled()) {
 			$sender->sendMessage(MyPlot::getPrefix() . $plugin->getLanguage()->get("plugin.disabled"));
 			return true;
