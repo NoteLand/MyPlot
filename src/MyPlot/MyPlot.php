@@ -476,7 +476,7 @@ class MyPlot extends PluginBase
         if ($plot->getFlag("spawn") !== false) {
             $spawn = explode(";", $plot->getFlag("spawn"));
             if (count($spawn) === 3 and is_numeric($spawn[0]) and is_numeric($spawn[1]) and is_numeric($spawn[2])) {
-                $spawn = new Position($spawn[0], $spawn[1], $spawn[2], $this->getServer()->getWorldManager()->getWorldByName($plot->levelName));
+                $spawn = new Position(intval($spawn[0]), intval($spawn[1]), intval($spawn[2]), $this->getServer()->getWorldManager()->getWorldByName($plot->levelName));
                 return $player->teleport($spawn);
             }
         }

@@ -158,12 +158,12 @@ class Plot
      * @api
      *
      * @param string $flag_name
+	 * @param mixed  $default
      *
-     * @return false|mixed
+     * @return bool|mixed
      */
-    public function getFlag(string $flag_name) {
-        if (isset($this->flags[$flag_name])) return $this->flags[$flag_name];
-        return false;
+    public function getFlag(string $flag_name, $default = false) {
+		return $this->flags[$flag_name] ?? $default;
     }
 
     /**
