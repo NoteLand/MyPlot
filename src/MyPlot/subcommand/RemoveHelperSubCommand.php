@@ -7,6 +7,7 @@ use MyPlot\forms\subforms\RemoveHelperForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
+use pocketmine\player\OfflinePlayer;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
@@ -38,7 +39,7 @@ class RemoveHelperSubCommand extends SubCommand
 		}
 		$helper = $this->getPlugin()->getServer()->getPlayerByPrefix($helperName);
 		if($helper === null)
-			$helper = $this->getPlugin()->getServer()->getOfflinePlayer($helperName);
+			$helper = new OfflinePlayer($helperName, null);
 		if($this->getPlugin()->removePlotHelper($plot, $helper->getName())) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("removehelper.success", [$helper->getName()]));
 		}else{

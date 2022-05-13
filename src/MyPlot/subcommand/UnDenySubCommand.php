@@ -7,6 +7,7 @@ use MyPlot\forms\subforms\UndenyPlayerForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\command\CommandSender;
+use pocketmine\player\OfflinePlayer;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
@@ -38,7 +39,7 @@ class UnDenySubCommand extends SubCommand
 		}
 		$dplayer = $this->getPlugin()->getServer()->getPlayerByPrefix($dplayerName);
 		if($dplayer === null)
-			$dplayer = $this->getPlugin()->getServer()->getOfflinePlayer($dplayerName);
+			$dplayer = new OfflinePlayer($dplayerName, null);
 		if($this->getPlugin()->removePlotDenied($plot, $dplayer->getName())) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("undenyplayer.success1", [$dplayer->getName()]));
 			if($dplayer instanceof Player) {
