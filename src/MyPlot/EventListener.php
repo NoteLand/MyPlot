@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace MyPlot;
 
+use JsonException;
 use MyPlot\events\MyPlotBlockEvent;
 use MyPlot\events\MyPlotBorderChangeEvent;
 use MyPlot\events\MyPlotPlayerEnterPlotEvent;
@@ -19,6 +20,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityExplodeEvent;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
+use pocketmine\event\entity\EntityTrampleFarmlandEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerMoveEvent;
@@ -44,10 +46,11 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
 	 * @priority LOWEST
 	 *
 	 * @param WorldLoadEvent $event
+	 *
+	 * @throws JsonException
 	 */
 	public function onLevelLoad(WorldLoadEvent $event) : void {
         if(file_exists($this->plugin->getDataFolder()."worlds".DIRECTORY_SEPARATOR.$event->getWorld()->getFolderName().".yml")) {
@@ -71,7 +74,6 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
 	 * @priority MONITOR
 	 *
 	 * @param WorldUnloadEvent $event
@@ -87,7 +89,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param BlockPlaceEvent $event
@@ -97,7 +99,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param BlockBreakEvent $event
@@ -107,7 +109,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param PlayerInteractEvent $event
@@ -117,7 +119,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param SignChangeEvent $event
@@ -183,7 +185,29 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
+	 *
+	 * @param EntityTrampleFarmlandEvent $event
+	 */
+	public function onTrampleFarmlandEvent(EntityTrampleFarmlandEvent $event) : void {
+		$player = $event->getEntity();
+		if (!($player instanceof Player))
+			return;
+		if(!$event->getBlock()->getPosition()->isValid())
+			return;
+		$levelName = $event->getBlock()->getPosition()->getWorld()->getFolderName();
+		if(!$this->plugin->isLevelLoaded($levelName))
+			return;
+		$plot = $this->plugin->getPlotByPosition($event->getBlock()->getPosition());
+		if($plot === null)
+			return;
+		$username = $player->getName();
+		if(($plot->owner !== $username) and (!$plot->isHelper($username)) and (!$plot->isHelper("*")) and (!$player->hasPermission("myplot.admin.build.plot")))
+			$event->cancel();
+	}
+
+	/**
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param EntityExplodeEvent $event
@@ -216,7 +240,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param EntityMotionEvent $event
@@ -239,7 +263,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param BlockSpreadEvent $event
@@ -277,7 +301,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param PlayerMoveEvent $event
@@ -287,7 +311,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param EntityTeleportEvent $event
@@ -357,7 +381,7 @@ class EventListener implements Listener
 	}
 
 	/**
-	 * @ignoreCancelled false
+	 * @handleCancelled true
 	 * @priority LOWEST
 	 *
 	 * @param EntityDamageByEntityEvent $event
