@@ -42,6 +42,7 @@ use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandData;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
+use pocketmine\Server;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginOwned;
 use pocketmine\plugin\PluginOwnedTrait;
@@ -79,7 +80,7 @@ class Commands extends Command implements PluginOwned
         $this->loadSubCommand(new ChatSubCommand($plugin, "chat"));
         $this->loadSubCommand(new ClaimSubCommand($plugin, "claim"));
 		$this->loadSubCommand(new ClearSubCommand($plugin, "clear"));
-        $styler = $this->owningPlugin->getServer()->getPluginManager()->getPlugin("WorldStyler");
+        $styler = Server::getInstance()->getPluginManager()->getPlugin("WorldStyler");
         if($styler !== null) {
             $this->loadSubCommand(new CloneSubCommand($plugin, "clone"));
         }
