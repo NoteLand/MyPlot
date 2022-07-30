@@ -30,6 +30,10 @@ class DisposeSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
+		if (count($plot->merged_plots) > 0) {
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("dispose.merged"));
+			return true;
+		}
 		if(isset($args[0]) and $args[0] == $this->translateString("confirm")) {
 			$economy = $this->getPlugin()->getEconomyProvider();
 			$price = $this->getPlugin()->getLevelSettings($plot->levelName)->disposePrice;

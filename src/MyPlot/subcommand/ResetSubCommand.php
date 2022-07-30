@@ -4,6 +4,8 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
+use MyPlot\task\UnmergePlotTast;
+use MyPlot\utils\DirectionFactory;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
@@ -41,6 +43,14 @@ class ResetSubCommand extends SubCommand
 			$maxBlocksPerTick = $this->getPlugin()->getConfig()->get("ClearBlocksPerTick", 256);
 			if($this->getPlugin()->resetPlot($plot, $maxBlocksPerTick)) {
 				$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("reset.success"));
+				foreach ($plot->merged_plots as $string) {
+					$facing = DirectionFactory::getInstance()->facingFromString($string);
+					$this->getPlugin()->getScheduler()->scheduleTask(new UnmergePlotTast($this->getPlugin(), $plot, $facing));
+					if (($direction = DirectionFactory::getInstance()->getDirection($facing)) !== null) {
+						$newPlot = $plot->getSide($facing);
+						$newPlot->removeMerge($direction->getOppositeDirectionName() . "merge");
+					}
+				}
 			}else{
 				$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 			}

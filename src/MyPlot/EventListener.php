@@ -8,11 +8,13 @@ use MyPlot\events\MyPlotBorderChangeEvent;
 use MyPlot\events\MyPlotPlayerEnterPlotEvent;
 use MyPlot\events\MyPlotPlayerLeavePlotEvent;
 use MyPlot\events\MyPlotPvpEvent;
+use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\Liquid;
 use pocketmine\block\Sapling;
 use pocketmine\block\utils\TreeType;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\block\BlockGrowEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\block\BlockSpreadEvent;
 use pocketmine\event\block\SignChangeEvent;
@@ -33,8 +35,8 @@ use pocketmine\world\World;
 
 class EventListener implements Listener
 {
-	/** @var MyPlot $plugin */
-	private $plugin;
+
+	private MyPlot $plugin;
 
 	/**
 	 * EventListener constructor.
@@ -135,51 +137,36 @@ class EventListener implements Listener
 		if(!$event->getBlock()->getPosition()->isValid())
 			return;
 		$levelName = $event->getBlock()->getPosition()->getWorld()->getFolderName();
-		if(!$this->plugin->isLevelLoaded($levelName)) {
+		if(!$this->plugin->isLevelLoaded($levelName))
 			return;
-		}
-		$plot = $this->plugin->getPlotByPosition($event->getBlock()->getPosition());
-		if($plot !== null) {
+
+		$username = $event->getPlayer()->getName();
+		if (($plot = $this->plugin->getPlotByRoadPosition($event->getBlock()->getPosition())) !== null){
 			$ev = new MyPlotBlockEvent($plot, $event->getBlock(), $event->getPlayer(), $event);
-            if ($event->isCancelled()) $ev->cancel();
+			if ($event->isCancelled())
+				$ev->cancel();
 			$ev->call();
-			$ev->isCancelled() ? $event->cancel() : $event->uncancel();
-			$username = $event->getPlayer()->getName();
-			if($plot->owner == $username or $plot->isHelper($username) or $plot->isHelper("*") or $event->getPlayer()->hasPermission("myplot.admin.build.plot")) {
-				if(!($event instanceof PlayerInteractEvent and $event->getBlock() instanceof Sapling))
+			if (!$ev->isCancelled()) {
+				if($event->getPlayer()->hasPermission("myplot.admin.build.plot"))
 					return;
-				/*
-				 * Prevent growing a tree near the edge of a plot
-				 * so the leaves won't go outside the plot
-				 */
-				$block = $event->getBlock();
-				$maxLengthLeaves = ($block->getIdInfo()->getVariant() == TreeType::SPRUCE()->getMagicNumber()) ? 3 : 2;
-				$beginPos = $this->plugin->getPlotPosition($plot);
-				$endPos = clone $beginPos;
-				$beginPos->x += $maxLengthLeaves;
-				$beginPos->z += $maxLengthLeaves;
-				$plotSize = $this->plugin->getLevelSettings($levelName)->plotSize;
-				$endPos->x += $plotSize - $maxLengthLeaves;
-				$endPos->z += $plotSize - $maxLengthLeaves;
-				if($block->getPosition()->getX() >= $beginPos->x and $block->getPosition()->getZ() >= $beginPos->z and $block->getPosition()->getX() < $endPos->x and $block->getPosition()->getZ() < $endPos->z) {
+				if($plot->owner === $username || $plot->isHelper($username) || $plot->isHelper("*"))
 					return;
+			}
+		} else if (($plot = $this->plugin->getPlotBorderingPosition($event->getBlock()->getPosition())) !== null) {
+			if ($this->plugin->getLevelSettings($levelName)->editBorderBlocks) {
+				$ev = new MyPlotBorderChangeEvent($plot, $event->getBlock(), $event->getPlayer(), $event);
+				if ($event->isCancelled())
+					$ev->cancel();
+				$ev->call();
+				if (!$ev->isCancelled()) {
+					if($event->getPlayer()->hasPermission("myplot.admin.build.plot"))
+						return;
+					if($plot->owner === $username || $plot->isHelper($username) || $plot->isHelper("*"))
+						return;
 				}
 			}
-		}elseif($event->getPlayer()->hasPermission("myplot.admin.build.road"))
+		} else if ($event->getPlayer()->hasPermission("myplot.admin.build.road"))
 			return;
-		elseif($this->plugin->isPositionBorderingPlot($event->getBlock()->getPosition()) and $this->plugin->getLevelSettings($levelName)->editBorderBlocks) {
-			$plot = $this->plugin->getPlotBorderingPosition($event->getBlock()->getPosition());
-			if($plot instanceof Plot) {
-				$ev = new MyPlotBorderChangeEvent($plot, $event->getBlock(), $event->getPlayer(), $event);
-                if ($event->isCancelled()) $ev->cancel();
-				$ev->call();
-				$ev->isCancelled() ? $event->cancel() : $event->uncancel();
-				$username = $event->getPlayer()->getName();
-				if($plot->owner == $username or $plot->isHelper($username) or $plot->isHelper("*") or $event->getPlayer()->hasPermission("myplot.admin.build.plot"))
-					if(!($event instanceof PlayerInteractEvent and $event->getBlock() instanceof Sapling))
-						return;
-			}
-		}
 		$event->cancel();
 		$this->plugin->getLogger()->debug("Block placement/break/interaction of {$event->getBlock()->getName()} was cancelled at ".$event->getBlock()->getPosition()->__toString());
 	}
@@ -198,7 +185,7 @@ class EventListener implements Listener
 		$levelName = $event->getBlock()->getPosition()->getWorld()->getFolderName();
 		if(!$this->plugin->isLevelLoaded($levelName))
 			return;
-		$plot = $this->plugin->getPlotByPosition($event->getBlock()->getPosition());
+		$plot = $this->plugin->getPlotByRoadPosition($event->getBlock()->getPosition());
 		if($plot === null)
 			return;
 		$username = $player->getName();
@@ -219,7 +206,7 @@ class EventListener implements Listener
 		$levelName = $event->getEntity()->getPosition()->getWorld()->getFolderName();
 		if(!$this->plugin->isLevelLoaded($levelName))
 			return;
-		$plot = $this->plugin->getPlotByPosition($event->getPosition());
+		$plot = $this->plugin->getPlotByRoadPosition($event->getPosition());
 		if($plot === null) {
 			$event->cancel();
 			return;
@@ -277,11 +264,11 @@ class EventListener implements Listener
 			return;
 		$settings = $this->plugin->getLevelSettings($levelName);
 
-		$newBlockInPlot = $this->plugin->getPlotByPosition($event->getBlock()->getPosition()) instanceof Plot;
-		$sourceBlockInPlot = $this->plugin->getPlotByPosition($event->getSource()->getPosition()) instanceof Plot;
+		$newBlockInPlot = $this->plugin->getPlotByRoadPosition($event->getBlock()->getPosition()) instanceof Plot;
+		$sourceBlockInPlot = $this->plugin->getPlotByRoadPosition($event->getSource()->getPosition()) instanceof Plot;
 
 		if($newBlockInPlot and $sourceBlockInPlot) {
-			$spreadIsSamePlot = $this->plugin->getPlotByPosition($event->getBlock()->getPosition())->isSame($this->plugin->getPlotByPosition($event->getSource()->getPosition()));
+			$spreadIsSamePlot = $this->plugin->getPlotByRoadPosition($event->getBlock()->getPosition())->isSame($this->plugin->getPlotByRoadPosition($event->getSource()->getPosition()));
 		}else {
 			$spreadIsSamePlot = false;
 		}
@@ -331,9 +318,9 @@ class EventListener implements Listener
 		$levelName = $player->getPosition()->getWorld()->getFolderName();
 		if (!$this->plugin->isLevelLoaded($levelName))
 			return;
-		$plot = $this->plugin->getPlotByPosition($event->getTo());
-		$plotFrom = $this->plugin->getPlotByPosition($event->getFrom());
-		if($plot !== null and ($plotFrom === null or !$plot->isSame($plotFrom))) {
+		$plot = $this->plugin->getPlotByRoadPosition($event->getTo());
+		$plotFrom = $this->plugin->getPlotByRoadPosition($event->getFrom());
+		if($plot !== null and $plotFrom === null) {
 			if(strpos((string) $plot, "-0") !== false) {
 				return;
 			}
@@ -367,7 +354,7 @@ class EventListener implements Listener
 			$paddingOwnerPopup = str_repeat(" ", max(0, $paddingSize));
 			$popup = TextFormat::WHITE . $paddingPopup . $popup . "\n" . TextFormat::WHITE . $paddingOwnerPopup . $ownerPopup;
 			$ev->getPlayer()->sendTip($popup);
-		}elseif($plotFrom !== null and ($plot === null or !$plot->isSame($plotFrom))) {
+		}elseif($plotFrom !== null and $plot === null) {
 			if(strpos((string) $plotFrom, "-0") !== false) {
 				return;
 			}
@@ -395,7 +382,7 @@ class EventListener implements Listener
 				return;
 			}
 			$settings = $this->plugin->getLevelSettings($levelName);
-			$plot = $this->plugin->getPlotByPosition($damaged->getPosition());
+			$plot = $this->plugin->getPlotByRoadPosition($damaged->getPosition());
 			if($plot !== null) {
 				$ev = new MyPlotPvpEvent($plot, $damager, $damaged, $event);
 				if(!$plot->pvp and !$damager->hasPermission("myplot.admin.pvp.bypass")) {

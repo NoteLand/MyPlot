@@ -100,6 +100,10 @@ permissions:
     default: op
   myplot.command.kick:
     default: true
+  myplot.command.merge:
+    default: true
+  myplot.command.unmerge:
+    default: true
   myplot.admin:
     default: op
   myplot.admin.clear:
@@ -159,6 +163,10 @@ permissions:
   myplot.admin.chat:
     default: op
   myplot.admin.kick:
+    default: op
+  myplot.admin.merge:
+    default: op
+  myplot.admin.unmerge:
     default: op
   myplot.claimplots:
     default: op

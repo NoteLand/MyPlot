@@ -24,6 +24,7 @@ use MyPlot\subcommand\HomeSubCommand;
 use MyPlot\subcommand\InfoSubCommand;
 use MyPlot\subcommand\KickSubCommand;
 use MyPlot\subcommand\ListSubCommand;
+use MyPlot\subcommand\MergeSubCommand;
 use MyPlot\subcommand\MiddleSubCommand;
 use MyPlot\subcommand\NameSubCommand;
 use MyPlot\subcommand\PvpSubCommand;
@@ -34,6 +35,7 @@ use MyPlot\subcommand\SetOwnerSubCommand;
 use MyPlot\subcommand\SpawnSubCommand;
 use MyPlot\subcommand\SubCommand;
 use MyPlot\subcommand\UnDenySubCommand;
+use MyPlot\subcommand\UnmergeSubCommand;
 use MyPlot\subcommand\WallSubCommand;
 use MyPlot\subcommand\WarpSubCommand;
 use pocketmine\command\Command;
@@ -94,7 +96,8 @@ class Commands extends Command implements PluginOwned
         $this->loadSubCommand(new InfoSubCommand($plugin, "info"));
         $this->loadSubCommand(new KickSubCommand($plugin, "kick"));
 		$this->loadSubCommand(new ListSubCommand($plugin, "list"));
-        $this->loadSubCommand(new MiddleSubCommand($plugin, "middle"));
+		$this->loadSubCommand(new MergeSubCommand($plugin, "merge"));
+		$this->loadSubCommand(new MiddleSubCommand($plugin, "middle"));
         $this->loadSubCommand(new NameSubCommand($plugin, "name"));
 		$this->loadSubCommand(new PvpSubCommand($plugin, "pvp"));
         $this->loadSubCommand(new RemoveHelperSubCommand($plugin, "removehelper"));
@@ -105,7 +108,8 @@ class Commands extends Command implements PluginOwned
         $this->loadSubCommand(new SetOwnerSubCommand($plugin, "setowner"));
         $this->loadSubCommand(new SpawnSubCommand($plugin, "spawn"));
         $this->loadSubCommand(new UnDenySubCommand($plugin, "undenyplayer"));
-        $this->loadSubCommand(new WallSubCommand($plugin, "wall"));
+		$this->loadSubCommand(new UnmergeSubCommand($plugin, "unmerge"));
+		$this->loadSubCommand(new WallSubCommand($plugin, "wall"));
         $this->loadSubCommand(new WarpSubCommand($plugin, "warp"));
 		$plugin->getLogger()->debug("Commands Registered to MyPlot");
 

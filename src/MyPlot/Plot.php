@@ -197,6 +197,62 @@ class Plot
 	/**
 	 * @api
 	 *
+	 * @param string $direction
+	 *
+	 * @return bool
+	 */
+	public function isMerged(string $direction) : bool {
+		return in_array($direction, $this->merged_plots, true);
+	}
+
+	/**
+	 * @api
+	 *
+	 * @param string $direction
+	 *
+	 * @return bool
+	 */
+	public function addMerge(string $direction) : bool {
+		if(!$this->isMerged($direction)) {
+			$this->merged_plots[] = $direction;
+			return MyPlot::getInstance()->savePlot($this);
+		}
+		return false;
+	}
+
+	/**
+	 * @api
+	 *
+	 * @param string $direction
+	 *
+	 * @return bool
+	 */
+	public function removeMerge(string $direction) : bool {
+		if(!$this->isMerged($direction)) {
+			return false;
+		}
+		$mergedPlots = [];
+		foreach ($this->merged_plots as $merge) {
+			if ($merge !== $direction) {
+				$mergedPlots[] = $merge;
+			}
+		}
+		$this->merged_plots = $mergedPlots;
+		return MyPlot::getInstance()->savePlot($this);
+	}
+
+	public function mergeData(Plot $plot) : void {
+		foreach($this->helpers as $helper){
+			$plot->addHelper($helper);
+		}
+		foreach($this->denied as $denied){
+			$plot->denyPlayer($denied);
+		}
+	}
+
+	/**
+	 * @api
+	 *
 	 * @param Plot $plot
 	 *
 	 * @return bool

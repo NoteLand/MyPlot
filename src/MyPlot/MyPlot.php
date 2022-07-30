@@ -25,6 +25,7 @@ use MyPlot\provider\YAMLDataProvider;
 use MyPlot\task\ChangeBorderTask;
 use MyPlot\task\ClearBorderTask;
 use MyPlot\task\ClearPlotTask;
+use MyPlot\task\MergePlotTast;
 use MyPlot\utils\Border;
 use MyPlot\utils\Wall;
 use onebone\economyapi\EconomyAPI;
@@ -285,6 +286,38 @@ class MyPlot extends PluginBase
 			return null;
 		}
 		return $this->dataProvider->getPlot($levelName, $X, $Z);
+	}
+
+	public function getPlotByRoadPosition(Position $position) : ?Plot {
+		$levelName = $position->getWorld()->getFolderName();
+		$plotLevelSettings = $this->getLevelSettings($levelName);
+		if (($plot = $this->getPlotByPosition($position)) !== null)
+			return $plot;
+		$plotToCheck1 = $this->getPlotByPosition(new Position($position->x + $plotLevelSettings->roadWidth, $position->y, $position->z, $position->getWorld()));
+		$plotToCheck2 = $this->getPlotByPosition(new Position($position->x - $plotLevelSettings->roadWidth, $position->y, $position->z, $position->getWorld()));
+		if ($plotToCheck1 !== null && $plotToCheck2 !== null) {
+			if ($plotToCheck1->isMerged("westmerge") and $plotToCheck2->isMerged("eastmerge"))
+				return $plotToCheck1;
+			return null;
+		}
+		$plotToCheck1 = $this->getPlotByPosition(new Position($position->x, $position->y, $position->z + $plotLevelSettings->roadWidth, $position->getWorld()));
+		$plotToCheck2 = $this->getPlotByPosition(new Position($position->x, $position->y, $position->z - $plotLevelSettings->roadWidth, $position->getWorld()));
+		if ($plotToCheck1 !== null && $plotToCheck2 !== null) {
+			if ($plotToCheck1->isMerged("northmerge") and $plotToCheck2->isMerged("southmerge"))
+				return $plotToCheck1;
+			return null;
+		}
+		return null;
+	}
+
+	public function mergePlot(Plot $start, Plot $ende, string $direction) : bool {
+		if(!$this->isLevelLoaded($start->levelName)) {
+			return false;
+		}
+		$start->mergeData($ende);
+		$ende->mergeData($start);
+		$this->getScheduler()->scheduleTask(new MergePlotTast($this, $start, $direction));
+		return true;
 	}
 
 	/**

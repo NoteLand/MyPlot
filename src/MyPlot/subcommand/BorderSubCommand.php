@@ -36,6 +36,10 @@ class BorderSubCommand extends SubCommand
             $sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
             return true;
         }
+		if (count($plot->merged_plots) > 0) {
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("border.merged"));
+			return true;
+		}
         if (count(MyPlot::$borders) < 1) {
             $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("border.empty"));
             return true;
