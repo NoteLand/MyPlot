@@ -54,25 +54,22 @@ use pocketmine\world\WorldCreationOptions;
 
 class MyPlot extends PluginBase
 {
-	/** @var MyPlot $instance */
-	private static $instance;
+
+	private static MyPlot $instance;
 	/** @var PlotLevelSettings[] $levels */
-	private $levels = [];
-	/** @var DataProvider $dataProvider */
-	private $dataProvider = null;
-	/** @var EconomyProvider $economyProvider */
-	private $economyProvider = null;
-	/** @var Language $baseLang */
-	private $baseLang = null;
+	private array $levels = [];
+	private ?DataProvider $dataProvider = null;
+	private ?EconomyProvider $economyProvider = null;
+	private ?Language $baseLang = null;
 
     /** @var Border[] $borders */
-    public static $borders = [];
+    public static array $borders = [];
 
     /** @var Wall[] $walls */
-	public static $walls = [];
+	public static array $walls = [];
 
 	/** @var string $prefix */
-	private static $prefix = "";
+	private static string $prefix = "";
 
 	public static function getInstance() : self {
 		return self::$instance;
@@ -290,6 +287,8 @@ class MyPlot extends PluginBase
 
 	public function getPlotByRoadPosition(Position $position) : ?Plot {
 		$levelName = $position->getWorld()->getFolderName();
+		if(!$this->isLevelLoaded($levelName))
+			return null;
 		$plotLevelSettings = $this->getLevelSettings($levelName);
 		if (($plot = $this->getPlotByPosition($position)) !== null)
 			return $plot;
