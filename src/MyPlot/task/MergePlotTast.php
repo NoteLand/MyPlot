@@ -7,6 +7,7 @@ use MyPlot\Plot;
 use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\item\StringToItemParser;
 use pocketmine\math\Vector3;
 use pocketmine\scheduler\Task;
 use pocketmine\utils\Config;
@@ -69,11 +70,16 @@ class MergePlotTast extends Task {
 			$this->plotWallBlock = $plotLevel->wallBlock;
 		} else {
 			$plotsquared = new Config($plugin->getDataFolder() . "plotsquaredpm.yml");
-			$block = explode(':', $plotsquared->get("ClaimBorder", "44:6"));
-			if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])){
-				$this->plotWallBlock = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
+			$claimBorder = $plotsquared->get("ClaimBorder", "quartz_slab");
+			if (($parsedResult = StringToItemParser::getInstance()->parse($claimBorder)) != null) {
+				$this->plotWallBlock = $parsedResult->getBlock();
 			} else {
-				$this->plotWallBlock = $plotLevel->wallBlock;
+				$block = explode(':', $claimBorder);
+				if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])){
+					$this->plotWallBlock = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
+				} else {
+					$this->plotWallBlock = $plotLevel->wallBlock;
+				}
 			}
 		}
 	}

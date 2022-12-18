@@ -33,6 +33,7 @@ use pocketmine\block\BlockFactory;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\event\world\WorldLoadEvent;
+use pocketmine\item\StringToItemParser;
 use pocketmine\lang\Language;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
@@ -545,12 +546,15 @@ class MyPlot extends PluginBase
 			$this->renamePlot($plot, $plotName);
 		}
         $plotsquared = new Config($this->getDataFolder() . "plotsquaredpm.yml");
-        $block = explode(':', $plotsquared->get("ClaimBorder", "44:6"));
-        if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-            $block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
-            $block = new Border("Border", $block, "myplot.border.default");
-            MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, $block));
-        }
+		$claimBorder = $plotsquared->get("ClaimBorder", "quartz_slab");
+		if (($parsedResult = StringToItemParser::getInstance()->parse($claimBorder)) != null) {
+			MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, new Border("Border", $parsedResult->getBlock(), "myplot.border.default")));
+		} else {
+			$block = explode(':', $claimBorder);
+			if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
+				MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, new Border("Border", BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]), "myplot.border.default")));
+			}
+		}
 		return $this->savePlot($plot);
 	}
 
@@ -1190,21 +1194,29 @@ class MyPlot extends PluginBase
 		$plotsquared = new Config($this->getDataFolder() . "plotsquaredpm.yml");
         foreach ($plotsquared->get("borders", []) as $name => $data) {
             if (isset($data["id"]) and isset($data["perm"])) {
-                $block = explode(':', $data["id"]);
-                if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-                    $block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
-                    self::$borders[] = new Border($name, $block, $data["perm"]);
-                }
+				if (($parsedResult = StringToItemParser::getInstance()->parse($data["id"])) != null) {
+					self::$borders[] = new Border($name, $parsedResult->getBlock(), $data["perm"]);
+				} else {
+					$block = explode(':', $data["id"]);
+					if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
+						$block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
+						self::$borders[] = new Border($name, $block, $data["perm"]);
+					}
+				}
             }
         }
 
         foreach ($plotsquared->get("walls", []) as $name => $data) {
             if (isset($data["id"]) and isset($data["perm"])) {
-                $block = explode(':', $data["id"]);
-                if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-                    $block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
-                    self::$walls[] = new Wall($name, $block, $data["perm"]);
-                }
+				if (($parsedResult = StringToItemParser::getInstance()->parse($data["id"])) != null) {
+					self::$walls[] = new Wall($name, $parsedResult->getBlock(), $data["perm"]);
+				} else {
+					$block = explode(':', $data["id"]);
+					if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
+						$block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
+						self::$walls[] = new Wall($name, $block, $data["perm"]);
+					}
+				}
             }
         }
 

@@ -1,91 +1,91 @@
 borders:
   Holzstufe:
-    id: "158:0"
+    id: "wooden_slab"
     perm : "myplot.border.default"
   Quartzstufe:
-    id: "44:6"
+    id: "quartz_slab"
     perm : "myplot.border.default"
   Steinstufe:
-    id: "44:0"
+    id: "stone_slab"
     perm : "myplot.border.default"
   Fackeln:
-    id: "50:0"
+    id: "torch"
     perm : "myplot.border.default"
   Kohleblock:
-    id: "173:0"
+    id: "coal_block"
     perm : "myplot.border.default"
   Eisenblock:
-    id: "42:0"
+    id: "iron_block"
     perm : "myplot.border.default"
   Goldblock:
-    id: "41:0"
+    id: "gold"
     perm : "myplot.border.default"
   Lapisblock:
-    id: "22:0"
+    id: "lapis_lazuli_block"
     perm : "myplot.border.default"
   Redstone Block:
-    id: "152:0"
+    id: "redstone_block"
     perm : "myplot.border.default"
   Diamant Block:
-    id: "57:0"
+    id: "diamond_block"
     perm : "myplot.border.default"
   Smaragd Block:
-    id: "133:0"
+    id: "emerald_block"
     perm : "myplot.border.default"
   Leer:
-    id: "0:0"
+    id: "air"
     perm : "myplot.border.default"
   Redstone Fackeln:
-    id: "76:0"
+    id: "redstone_torch"
     perm : "myplot.border.default"
   Jukebox:
-    id: "84:0"
+    id: "jukebox"
     perm : "myplot.border.default"
   Netherstein:
-    id: "87:0"
+    id: "nether_brick_slab"
     perm : "myplot.border.default"
   Glowstone:
-    id: "89:0"
+    id: "glowstone_block"
     perm : "myplot.border.default"
   Seelensand:
-    id: "88:0"
+    id: "soul_sand"
     perm : "myplot.border.default"
   Obsidian:
-    id: "49:0"
+    id: "obsidian"
     perm : "myplot.border.default"
   Endstein:
-    id: "121:0"
+    id: "end_stone"
     perm : "myplot.border.default"
   Bedrock:
-    id: "7:0"
+    id: "bedrock"
     perm : "myplot.border.default"
   Beacon:
-    id: "138:0"
+    id: "beacon"
     perm : "myplot.border.default"
   Drachenei:
-    id: "122:0"
+    id: "dragon_egg"
     perm : "myplot.border.default"
   Spawner:
-    id: "52:0"
+    id: "monster_spawner"
     perm : "myplot.border.default"
   Kuchen:
-    id: "92:0"
+    id: "cake"
     perm : "myplot.border.default"
   Stevekopf:
-    id: "144:3"
+    id: "player_head"
     perm : "myplot.border.default"
   Hecke:
-    id: "18:4"
+    id: "oak_leaves"
     perm : "myplot.border.default"
 
 walls:
   Erde:
-    id: "3:0"
+    id: "dirt"
     perm : "myplot.wall.default"
   Glas:
-    id: "20:0"
+    id: "glass"
     perm : "myplot.wall.default"
 
 prefix: "§l§aP2 §r"
 
-ClaimBorder: "44:6"
+ClaimBorder: "quartz_slab"
