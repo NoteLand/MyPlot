@@ -5,6 +5,7 @@ namespace MyPlot;
 use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\item\StringToItemParser;
 
 class PlotLevelSettings
 {
@@ -70,7 +71,9 @@ class PlotLevelSettings
 		if(isset($array[$key])) {
 			$id = $array[$key];
 			if(is_numeric($id)) {
-				$block = BlockFactory::getInstance()->get((int) $id);
+				$block = BlockFactory::getInstance()->get((int) $id, 0);
+			}elseif (($parsedResult = StringToItemParser::getInstance()->parse($id)) != null) {
+				$block = $parsedResult->getBlock();
 			}else{
 				$split = explode(":", $id);
 				if(count($split) === 2 and is_numeric($split[0]) and is_numeric($split[1])) {
