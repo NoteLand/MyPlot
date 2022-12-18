@@ -41,6 +41,10 @@ class BorderForm extends SimpleMyPlotForm
                     $submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("notowner"));
                     return;
                 }
+				if (count($plot->merged_plots) > 0) {
+					$submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("border.merged"));
+					return;
+				}
                 if (!$submitter->hasPermission($border->getPermission())) {
                     $submitter->sendMessage(MyPlot::getPrefix() . TextFormat::RED . MyPlot::getInstance()->getLanguage()->translateString("no.permissions"));
                     return;
