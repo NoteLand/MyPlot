@@ -8,13 +8,9 @@ use MyPlot\events\MyPlotBorderChangeEvent;
 use MyPlot\events\MyPlotPlayerEnterPlotEvent;
 use MyPlot\events\MyPlotPlayerLeavePlotEvent;
 use MyPlot\events\MyPlotPvpEvent;
-use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\Liquid;
-use pocketmine\block\Sapling;
-use pocketmine\block\utils\TreeType;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\event\block\BlockBreakEvent;
-use pocketmine\event\block\BlockGrowEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\block\BlockSpreadEvent;
 use pocketmine\event\block\SignChangeEvent;
@@ -133,7 +129,7 @@ class EventListener implements Listener
 	/**
 	 * @param BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent $event
 	 */
-	private function onEventOnBlock($event) : void {
+	private function onEventOnBlock(BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent $event) : void {
 		if(!$event->getBlock()->getPosition()->isValid())
 			return;
 		$levelName = $event->getBlock()->getPosition()->getWorld()->getFolderName();
@@ -237,7 +233,7 @@ class EventListener implements Listener
 			return;
 		}
 		$level = $event->getEntity()->getPosition()->getWorld();
-		if(!$level instanceof World)
+		if(!($level instanceof World))
 			return;
 		$levelName = $level->getFolderName();
 		if(!$this->plugin->isLevelLoaded($levelName))
@@ -321,7 +317,7 @@ class EventListener implements Listener
 		$plot = $this->plugin->getPlotByRoadPosition($event->getTo());
 		$plotFrom = $this->plugin->getPlotByRoadPosition($event->getFrom());
 		if($plot !== null and $plotFrom === null) {
-			if(strpos((string) $plot, "-0") !== false) {
+			if(strpos((string) $plot, "-0") != false) {
 				return;
 			}
 			$ev = new MyPlotPlayerEnterPlotEvent($plot, $player);

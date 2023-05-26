@@ -2,91 +2,89 @@
 declare(strict_types=1);
 namespace MyPlot\provider;
 
+use Exception;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+use SQLite3;
+use SQLite3Result;
+use SQLite3Stmt;
 
 class SQLiteDataProvider extends DataProvider
 {
-	/** @var \SQLite3 $db */
-	private $db;
-	/** @var \SQLite3Stmt $sqlGetPlot */
-	protected $sqlGetPlot;
-	/** @var \SQLite3Stmt $sqlSavePlot */
-	protected $sqlSavePlot;
-	/** @var \SQLite3Stmt $sqlSavePlotById */
-	protected $sqlSavePlotById;
-	/** @var \SQLite3Stmt $sqlRemovePlot */
-	protected $sqlRemovePlot;
-	/** @var \SQLite3Stmt $sqlRemovePlotById */
-	protected $sqlRemovePlotById;
-	/** @var \SQLite3Stmt $sqlGetPlotsByOwner */
-	protected $sqlGetPlotsByOwner;
-	/** @var \SQLite3Stmt $sqlGetPlotsByOwnerAndLevel */
-	protected $sqlGetPlotsByOwnerAndLevel;
-	/** @var \SQLite3Stmt $sqlGetExistingXZ */
-	protected $sqlGetExistingXZ;
+
+	private SQLite3 $db;
+	protected SQLite3Stmt $sqlGetPlot;
+	protected SQLite3Stmt $sqlSavePlot;
+	protected SQLite3Stmt $sqlSavePlotById;
+	protected SQLite3Stmt $sqlRemovePlot;
+	protected SQLite3Stmt $sqlRemovePlotById;
+	protected SQLite3Stmt $sqlGetPlotsByOwner;
+	protected SQLite3Stmt $sqlGetPlotsByOwnerAndLevel;
+	protected SQLite3Stmt $sqlGetExistingXZ;
 
 	/**
 	 * SQLiteDataProvider constructor.
 	 *
 	 * @param MyPlot $plugin
-	 * @param int $cacheSize
+	 * @param int    $cacheSize
+	 *
+	 * @throws Exception
 	 */
 	public function __construct(MyPlot $plugin, int $cacheSize = 0) {
 		parent::__construct($plugin, $cacheSize);
-		$this->db = new \SQLite3($this->plugin->getDataFolder() . "plots.db");
+		$this->db = new SQLite3($this->plugin->getDataFolder() . "plots.db");
 		$this->db->exec("CREATE TABLE IF NOT EXISTS plots
 			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, name TEXT,
 			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INTEGER, price FLOAT, merged_plots TEXT, flags TEXT);");
 		try{
 			$this->db->exec("ALTER TABLE plots ADD pvp INTEGER;");
-		}catch(\Exception $e) {
+		}catch(Exception $e) {
 			// nothing :P
 		}
 		try{
 			$this->db->exec("ALTER TABLE plots ADD price FLOAT;");
-		}catch(\Exception $e) {
+		}catch(Exception $e) {
 			// nothing :P
 		}
         try{
             $this->db->exec("ALTER TABLE plots ADD merged_plots TEXT;");
-        }catch(\Exception $e) {
+        }catch(Exception $e) {
             // nothing :P
         }
         try{
             $this->db->exec("ALTER TABLE plots ADD flags TEXT;");
-        }catch(\Exception $e) {
+        }catch(Exception $e) {
             // nothing :P
         }
 		$stmt = $this->db->prepare("SELECT id, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlot = $stmt;
 		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plots (id, level, X, Z, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags) VALUES
 			((SELECT id FROM plots WHERE level = :level AND X = :X AND Z = :Z),
 			 :level, :X, :Z, :name, :owner, :helpers, :denied, :biome, :pvp, :price, :merged_plots, :flags);");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlSavePlot = $stmt;
 		$stmt = $this->db->prepare("UPDATE plots SET name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome, pvp = :pvp, price = :price, merged_plots = :merged_plots, flags = :flags WHERE id = :id;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlSavePlotById = $stmt;
 		$stmt = $this->db->prepare("DELETE FROM plots WHERE level = :level AND X = :X AND Z = :Z;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlRemovePlot = $stmt;
 		$stmt = $this->db->prepare("DELETE FROM plots WHERE id = :id;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlRemovePlotById = $stmt;
 		$stmt = $this->db->prepare("SELECT * FROM plots WHERE owner = :owner;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlotsByOwner = $stmt;
 		$stmt = $this->db->prepare("SELECT * FROM plots WHERE owner = :owner AND level = :level;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlotsByOwnerAndLevel = $stmt;
 		$stmt = $this->db->prepare("SELECT X, Z FROM plots WHERE (
 				level = :level
@@ -96,7 +94,7 @@ class SQLiteDataProvider extends DataProvider
 				)
 			);");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetExistingXZ = $stmt;
 		$this->plugin->getLogger()->debug("SQLite data provider registered");
 	}
@@ -126,7 +124,7 @@ class SQLiteDataProvider extends DataProvider
         $stmt->bindValue(":flags", $flags, SQLITE3_TEXT);
 		$stmt->reset();
 		$result = $stmt->execute();
-		if(!$result instanceof \SQLite3Result) {
+		if(!$result instanceof SQLite3Result) {
 			return false;
 		}
 		$this->cachePlot($plot);
@@ -145,7 +143,7 @@ class SQLiteDataProvider extends DataProvider
 		}
 		$stmt->reset();
 		$result = $stmt->execute();
-		if(!$result instanceof \SQLite3Result) {
+		if(!$result instanceof SQLite3Result) {
 			return false;
 		}
 		$plot = new Plot($plot->levelName, $plot->X, $plot->Z);

@@ -9,13 +9,14 @@ use dktapps\pmforms\element\Toggle;
 use MyPlot\forms\ComplexMyPlotForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
-use pocketmine\block\BlockLegacyIds;
+use pocketmine\block\BlockTypeIds;
+use pocketmine\item\StringToItemParser;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
 class GenerateForm extends ComplexMyPlotForm {
 	/** @var string[] $keys */
-	private $keys = [];
+	private array $keys = [];
 
 	public function __construct() {
 		$plugin = MyPlot::getInstance();
@@ -72,15 +73,10 @@ class GenerateForm extends ComplexMyPlotForm {
 
 				$blockIds = array_slice($data, -5, 5, true);
 				$blockIds = array_map(function($val) {
-					if(strpos($val, ':') !== false) {
-						$peices = explode(':', $val);
-						if(defined(BlockLegacyIds::class."::".strtoupper(str_replace(' ', '_', $peices[0]))))
-							return constant(BlockLegacyIds::class."::".strtoupper(str_replace(' ', '_', $val))).':'.($peices[1] ?? 0);
+					if(StringToItemParser::getInstance()->parse($val) !== null)
 						return $val;
-					}elseif(is_numeric($val))
-						return $val.':0';
-					elseif(defined(BlockLegacyIds::class."::".strtoupper(str_replace(' ', '_', $val))))
-						return constant(BlockLegacyIds::class."::".strtoupper(str_replace(' ', '_', $val))).':0';
+					elseif(defined(BlockTypeIds::class."::".strtoupper(str_replace(' ', '_', $val))))
+						return $val;
 					return $val;
 				}, $blockIds);
 				foreach($blockIds as $key => $val)

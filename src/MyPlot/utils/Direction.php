@@ -2,8 +2,6 @@
 
 namespace MyPlot\utils;
 
-use pocketmine\math\Facing;
-
 class Direction {
 
 	private int $facing;

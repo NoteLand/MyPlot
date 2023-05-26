@@ -3,7 +3,6 @@ declare(strict_types=1);
 namespace MyPlot;
 
 use pocketmine\block\Block;
-use pocketmine\block\BlockFactory;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\item\StringToItemParser;
 
@@ -67,25 +66,14 @@ class PlotLevelSettings
 	 *
 	 * @return Block
 	 */
-	public static function parseBlock(array &$array, $key, Block $default) : Block {
+	public static function parseBlock(array &$array, string|int $key, Block $default) : Block {
 		if(isset($array[$key])) {
 			$id = $array[$key];
-			if(is_numeric($id)) {
-				$block = BlockFactory::getInstance()->get((int) $id, 0);
-			}elseif (($parsedResult = StringToItemParser::getInstance()->parse($id)) != null) {
-				$block = $parsedResult->getBlock();
-			}else{
-				$split = explode(":", $id);
-				if(count($split) === 2 and is_numeric($split[0]) and is_numeric($split[1])) {
-					$block = BlockFactory::getInstance()->get((int) $split[0], (int) $split[1]);
-				}else{
-					$block = $default;
-				}
+			if (($parsedResult = StringToItemParser::getInstance()->parse($id)) != null) {
+				return $parsedResult->getBlock();
 			}
-		}else{
-			$block = $default;
 		}
-		return $block;
+		return $default;
 	}
 
 	/**
@@ -95,7 +83,7 @@ class PlotLevelSettings
 	 *
 	 * @return int
 	 */
-	public static function parseNumber(array &$array, $key, int $default) : int {
+	public static function parseNumber(array &$array, string|int $key, int $default) : int {
 		if(isset($array[$key]) and is_numeric($array[$key])) {
 			return (int) $array[$key];
 		}else{
@@ -110,7 +98,7 @@ class PlotLevelSettings
 	 *
 	 * @return bool
 	 */
-	public static function parseBool(array &$array, $key, bool $default) : bool {
+	public static function parseBool(array &$array, string|int $key, bool $default) : bool {
 		if(isset($array[$key]) and is_bool($array[$key])) {
 			return $array[$key];
 		}else{

@@ -9,7 +9,6 @@ use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\block\SignChangeEvent;
 use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
-use pocketmine\event\Event;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\player\Player;
 
@@ -17,8 +16,7 @@ class MyPlotBlockEvent extends MyPlotPlotEvent implements Cancellable {
     use CancellableTrait;
 
 	private Block $block;
-	/** @var BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent $event */
-	private $event;
+	private BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent $event;
 	private Player $player;
 
 	/**
@@ -29,7 +27,7 @@ class MyPlotBlockEvent extends MyPlotPlotEvent implements Cancellable {
 	 * @param Player $player
 	 * @param BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent $event
 	 */
-	public function __construct(Plot $plot, Block $block, Player $player, Event $event) {
+	public function __construct(Plot $plot, Block $block, Player $player, BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent $event) {
 		$this->block = $block;
 		$this->player = $player;
 		$this->event = $event;
@@ -40,10 +38,7 @@ class MyPlotBlockEvent extends MyPlotPlotEvent implements Cancellable {
 		return $this->block;
 	}
 
-	/**
-	 * @return BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent
-	 */
-	public function getEvent() : Event {
+	public function getEvent() : BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent|SignChangeEvent {
 		return $this->event;
 	}
 

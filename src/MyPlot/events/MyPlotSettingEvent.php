@@ -9,8 +9,7 @@ use pocketmine\event\CancellableTrait;
 class MyPlotSettingEvent extends MyPlotPlotEvent implements Cancellable {
     use CancellableTrait;
 
-	/** @var Plot $oldPlot */
-	private $oldPlot;
+	private Plot $oldPlot;
 
 	public function __construct(Plot $oldPlot, Plot $newPlot) {
 		$this->oldPlot = $oldPlot;

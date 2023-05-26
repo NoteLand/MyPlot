@@ -5,7 +5,6 @@ namespace MyPlot\task;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
 use pocketmine\block\Block;
-use pocketmine\block\BlockFactory;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\item\StringToItemParser;
 use pocketmine\math\Facing;
@@ -47,12 +46,7 @@ class UnmergePlotTast extends Task {
 			if (($parsedResult = StringToItemParser::getInstance()->parse($claimBorder)) != null) {
 				$this->wallBlock = $parsedResult->getBlock();
 			} else {
-				$block = explode(':', $claimBorder);
-				if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])){
-					$this->wallBlock = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
-				} else {
-					$this->wallBlock = $plotLevel->wallBlock;
-				}
+				$this->wallBlock = $plotLevel->wallBlock;
 			}
 		}
 		$plotSize = $plotLevel->plotSize;

@@ -2,32 +2,26 @@
 declare(strict_types=1);
 namespace MyPlot\provider;
 
+use Exception;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+use mysqli;
+use mysqli_stmt;
 use pocketmine\Server;
 
 class MySQLProvider extends DataProvider
 {
-	/** @var \mysqli $db */
-	protected $db;
-	/** @var mixed[] $settings */
-	protected $settings;
-	/** @var \mysqli_stmt $sqlGetPlot */
-	protected $sqlGetPlot;
-	/** @var \mysqli_stmt $sqlSavePlot */
-	protected $sqlSavePlot;
-	/** @var \mysqli_stmt $sqlSavePlotById */
-	protected $sqlSavePlotById;
-	/** @var \mysqli_stmt $sqlRemovePlot */
-	protected $sqlRemovePlot;
-	/** @var \mysqli_stmt $sqlRemovePlotById */
-	protected $sqlRemovePlotById;
-	/** @var \mysqli_stmt $sqlGetPlotsByOwner */
-	protected $sqlGetPlotsByOwner;
-	/** @var \mysqli_stmt $sqlGetPlotsByOwnerAndLevel */
-	protected $sqlGetPlotsByOwnerAndLevel;
-	/** @var \mysqli_stmt $sqlGetExistingXZ */
-	protected $sqlGetExistingXZ;
+
+	protected mysqli $db;
+	protected array $settings;
+	protected mysqli_stmt $sqlGetPlot;
+	protected mysqli_stmt $sqlSavePlot;
+	protected mysqli_stmt $sqlSavePlotById;
+	protected mysqli_stmt $sqlRemovePlot;
+	protected mysqli_stmt $sqlRemovePlotById;
+	protected mysqli_stmt $sqlGetPlotsByOwner;
+	protected mysqli_stmt $sqlGetPlotsByOwnerAndLevel;
+	protected mysqli_stmt $sqlGetExistingXZ;
 
 	/**
 	 * MySQLProvider constructor.
@@ -202,7 +196,7 @@ class MySQLProvider extends DataProvider
 			}
 			$result = $stmt->get_result();
 			$plots = [];
-			while($result !== false and ($val = $result->fetch_array(MYSQLI_NUM)) !== null) {
+			while($result != false and ($val = $result->fetch_array(MYSQLI_NUM)) !== null) {
 				$plots[$val[0]][$val[1]] = true;
 			}
 			if(count($plots) === max(1, 8 * $i)) {
@@ -267,38 +261,41 @@ class MySQLProvider extends DataProvider
 		return true;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	private function prepare() : void {
 		$stmt = $this->db->prepare("SELECT id, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags FROM plots WHERE level = ? AND X = ? AND Z = ?;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlot = $stmt;
 		$stmt = $this->db->prepare("INSERT INTO plots (`id`, `level`, `X`, `Z`, `name`, `owner`, `helpers`, `denied`, `biome`, `pvp`, `price`, `merged_plots`, `flags`) VALUES((SELECT id FROM plots p WHERE p.level = ? AND X = ? AND Z = ?),?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name = VALUES(name), owner = VALUES(owner), helpers = VALUES(helpers), denied = VALUES(denied), biome = VALUES(biome), pvp = VALUES(pvp), price = VALUES(price), merged_plots = VALUES(merged_plots), flags = VALUES(flags);");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlSavePlot = $stmt;
 		$stmt = $this->db->prepare("UPDATE plots SET id = ?, level = ?, X = ?, Z = ?, name = ?, owner = ?, helpers = ?, denied = ?, biome = ?, pvp = ?, price = ?, merged_plots = ?, flags = ? WHERE id = VALUES(id);");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlSavePlotById = $stmt;
 		$stmt = $this->db->prepare("DELETE FROM plots WHERE id = ?;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlRemovePlotById = $stmt;
 		$stmt = $this->db->prepare("DELETE FROM plots WHERE level = ? AND X = ? AND Z = ?;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlRemovePlot = $stmt;
 		$stmt = $this->db->prepare("SELECT * FROM plots WHERE owner = ?;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlotsByOwner = $stmt;
 		$stmt = $this->db->prepare("SELECT * FROM plots WHERE owner = ? AND level = ?;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlotsByOwnerAndLevel = $stmt;
 		$stmt = $this->db->prepare("SELECT X, Z FROM plots WHERE (level = ? AND ((abs(X) = ? AND abs(Z) <= ?) OR (abs(Z) = ? AND abs(X) <= ?)));");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetExistingXZ = $stmt;
 	}
 }

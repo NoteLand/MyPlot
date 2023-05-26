@@ -52,7 +52,7 @@ class DenyPlayerSubCommand extends SubCommand
 			}
 			return true;
 		}
-		$dplayer = $this->getPlugin()->getServer()->getPlayerByPrefix($dplayer);
+		$dplayer = $this->getPlugin()->getServer()->getPlayerExact($dplayer);
 		if(!$dplayer instanceof Player) {
 			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("denyplayer.notaplayer"));
 			return true;

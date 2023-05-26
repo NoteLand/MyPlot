@@ -13,7 +13,7 @@ class PlayerChatListener implements Listener
 {
 
     /**
-     * @ignoreCancelled false
+     * @handleCancelled false
      * @priority MONITOR
      *
      * @param PlayerChatEvent $event

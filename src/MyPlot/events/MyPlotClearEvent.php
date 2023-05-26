@@ -9,7 +9,7 @@ use pocketmine\event\CancellableTrait;
 class MyPlotClearEvent extends MyPlotPlotEvent implements Cancellable {
     use CancellableTrait;
 
-	private int $maxBlocksPerTick = 256;
+	private int $maxBlocksPerTick;
 
 	/**
 	 * MyPlotClearEvent constructor.

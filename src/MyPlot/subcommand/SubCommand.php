@@ -6,8 +6,6 @@ use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
-use pocketmine\plugin\Plugin;
-use pocketmine\plugin\PluginOwned;
 
 abstract class SubCommand
 {
@@ -30,7 +28,7 @@ abstract class SubCommand
     /**
      * @param string $str
      * @param (float|int|string)[] $params
-     * @param string $onlyPrefix
+     * @param string|null $onlyPrefix
 	 *
      * @return string
      */

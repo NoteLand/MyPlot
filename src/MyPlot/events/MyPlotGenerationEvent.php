@@ -12,7 +12,7 @@ class MyPlotGenerationEvent extends Event implements Cancellable {
 	private string $levelName;
 	private string $generator = "myplot";
 	/** @var mixed[] $settings */
-	private $settings = [];
+	private array $settings = [];
 
 	/**
 	 * MyPlotGenerationEvent constructor.

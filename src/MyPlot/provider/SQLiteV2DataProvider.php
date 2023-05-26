@@ -4,18 +4,22 @@
 namespace MyPlot\provider;
 
 
+use Exception;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+use SQLite3;
+use SQLite3Result;
+use SQLite3Stmt;
 
 class SQLiteV2DataProvider extends DataProvider
 {
-	private \SQLite3 $db;
-	protected \SQLite3Stmt $sqlGetPlot;
-	protected \SQLite3Stmt $sqlSavePlot;
-	protected \SQLite3Stmt $sqlRemovePlot;
-	protected \SQLite3Stmt $sqlGetPlotsByOwner;
-	protected \SQLite3Stmt $sqlGetPlotsByOwnerAndLevel;
-	protected \SQLite3Stmt $sqlGetExistingXZ;
+	private SQLite3 $db;
+	protected SQLite3Stmt $sqlGetPlot;
+	protected SQLite3Stmt $sqlSavePlot;
+	protected SQLite3Stmt $sqlRemovePlot;
+	protected SQLite3Stmt $sqlGetPlotsByOwner;
+	protected SQLite3Stmt $sqlGetPlotsByOwnerAndLevel;
+	protected SQLite3Stmt $sqlGetExistingXZ;
 
 	/**
 	 * SQLiteDataProvider constructor.
@@ -23,11 +27,11 @@ class SQLiteV2DataProvider extends DataProvider
 	 * @param MyPlot $plugin
 	 * @param int    $cacheSize
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function __construct(MyPlot $plugin, int $cacheSize = 0) {
 		parent::__construct($plugin, $cacheSize);
-		$this->db = new \SQLite3($this->plugin->getDataFolder() . "plots.db");
+		$this->db = new SQLite3($this->plugin->getDataFolder() . "plots.db");
 		$this->db->exec("CREATE TABLE IF NOT EXISTS plotsV2
 			(level TEXT, X INTEGER, Z INTEGER, name TEXT,
 			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, pvp INTEGER, price FLOAT, PRIMARY KEY (level, X, Z));");
@@ -61,7 +65,7 @@ class SQLiteV2DataProvider extends DataProvider
 		$stmt->bindValue(":flags", $flags, SQLITE3_TEXT);
 		$stmt->reset();
 		$result = $stmt->execute();
-		if(!$result instanceof \SQLite3Result) {
+		if(!$result instanceof SQLite3Result) {
 			return false;
 		}
 		$this->cachePlot($plot);
@@ -75,7 +79,7 @@ class SQLiteV2DataProvider extends DataProvider
 		$stmt->bindValue(":Z", $plot->Z, SQLITE3_INTEGER);
 		$stmt->reset();
 		$result = $stmt->execute();
-		if(!$result instanceof \SQLite3Result) {
+		if(!$result instanceof SQLite3Result) {
 			return false;
 		}
 		$plot = new Plot($plot->levelName, $plot->X, $plot->Z);
@@ -166,7 +170,7 @@ class SQLiteV2DataProvider extends DataProvider
 			$this->sqlGetExistingXZ->reset();
 			$result = $this->sqlGetExistingXZ->execute();
 			$plots = [];
-			while($result !== false and ($val = $result->fetchArray(SQLITE3_NUM)) !== false) {
+			while($result != false and ($val = $result->fetchArray(SQLITE3_NUM)) !== false) {
 				$plots[$val[0]][$val[1]] = true;
 			}
 			if(count($plots) === max(1, 8 * $i)) {
@@ -201,26 +205,29 @@ class SQLiteV2DataProvider extends DataProvider
 		$this->plugin->getLogger()->debug("SQLite database closed!");
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	private function prepare() : void {
 		$stmt = $this->db->prepare("SELECT name, owner, helpers, denied, biome, pvp, price, merged_plots, flags FROM plotsV2 WHERE level = :level AND X = :X AND Z = :Z;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlot = $stmt;
 		$stmt = $this->db->prepare("INSERT OR REPLACE INTO plotsV2 (level, X, Z, name, owner, helpers, denied, biome, pvp, price, merged_plots, flags) VALUES (:level, :X, :Z, :name, :owner, :helpers, :denied, :biome, :pvp, :price, :merged_plots, :flags);");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlSavePlot = $stmt;
 		$stmt = $this->db->prepare("DELETE FROM plotsV2 WHERE level = :level AND X = :X AND Z = :Z;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlRemovePlot = $stmt;
 		$stmt = $this->db->prepare("SELECT * FROM plotsV2 WHERE owner = :owner;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlotsByOwner = $stmt;
 		$stmt = $this->db->prepare("SELECT * FROM plotsV2 WHERE owner = :owner AND level = :level;");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetPlotsByOwnerAndLevel = $stmt;
 		$stmt = $this->db->prepare("SELECT X, Z FROM plotsV2 WHERE (
 				level = :level
@@ -230,7 +237,7 @@ class SQLiteV2DataProvider extends DataProvider
 				)
 			);");
 		if($stmt === false)
-			throw new \Exception();
+			throw new Exception();
 		$this->sqlGetExistingXZ = $stmt;
 	}
 }

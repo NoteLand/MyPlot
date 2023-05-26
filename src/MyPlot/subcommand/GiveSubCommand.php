@@ -36,7 +36,7 @@ class GiveSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$newOwner = $this->getPlugin()->getServer()->getPlayerByPrefix($newOwner);
+		$newOwner = $this->getPlugin()->getServer()->getPlayerExact($newOwner);
 		if(!$newOwner instanceof Player) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("give.notonline"));
 			return true;

@@ -33,7 +33,7 @@ class KickSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$target = $this->getPlugin()->getServer()->getPlayerByPrefix($args[0]);
+		$target = $this->getPlugin()->getServer()->getPlayerExact($args[0]);
 		if ($target === null) {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("kick.noPlayer"));
 			return true;

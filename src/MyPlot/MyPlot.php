@@ -29,7 +29,6 @@ use MyPlot\task\MergePlotTast;
 use MyPlot\utils\Border;
 use MyPlot\utils\Wall;
 use onebone\economyapi\EconomyAPI;
-use pocketmine\block\BlockFactory;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\event\world\WorldLoadEvent;
@@ -43,10 +42,9 @@ use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Config;
-use pocketmine\utils\TextFormat as TF;
+use pocketmine\utils\TextFormat;
 use pocketmine\world\biome\Biome;
 use pocketmine\world\biome\BiomeRegistry;
-use pocketmine\world\format\BiomeArray;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\generator\GeneratorManager;
 use pocketmine\world\Position;
@@ -549,11 +547,6 @@ class MyPlot extends PluginBase
 		$claimBorder = $plotsquared->get("ClaimBorder", "quartz_slab");
 		if (($parsedResult = StringToItemParser::getInstance()->parse($claimBorder)) != null) {
 			MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, new Border("Border", $parsedResult->getBlock(), "myplot.border.default")));
-		} else {
-			$block = explode(':', $claimBorder);
-			if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-				MyPlot::getInstance()->getScheduler()->scheduleTask(new ChangeBorderTask($plot, new Border("Border", BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]), "myplot.border.default")));
-			}
 		}
 		return $this->savePlot($plot);
 	}
@@ -633,7 +626,7 @@ class MyPlot extends PluginBase
 		$cuboid = Cuboid::fromSelection($selection);
 		//$cuboid = $cuboid->async(); // do not use async because WorldStyler async is very broken right now
 		$cuboid->copy($level, $vec2, function (float $time, int $changed) use ($plugin) : void {
-			$plugin->getLogger()->debug(TF::GREEN . 'Copied ' . number_format($changed) . ' blocks in ' . number_format($time, 10) . 's to the MyPlot clipboard.');
+			$plugin->getLogger()->debug(TextFormat::GREEN . 'Copied ' . number_format($changed) . ' blocks in ' . number_format($time, 10) . 's to the MyPlot clipboard.');
 		});
 
 		$plotLevel = $this->getLevelSettings($plotTo->levelName);
@@ -648,12 +641,12 @@ class MyPlot extends PluginBase
 		$commonShape = CommonShape::fromSelection($selection);
 		//$commonShape = $commonShape->async(); // do not use async because WorldStyler async is very broken right now
 		$commonShape->paste($level, $vec2, true, function (float $time, int $changed) use ($plugin) : void {
-			$plugin->getLogger()->debug(TF::GREEN . 'Pasted ' . number_format($changed) . ' blocks in ' . number_format($time, 10) . 's from the MyPlot clipboard.');
+			$plugin->getLogger()->debug(TextFormat::GREEN . 'Pasted ' . number_format($changed) . ' blocks in ' . number_format($time, 10) . 's from the MyPlot clipboard.');
 		});
 		$styler->removeSelection(99997);
 		foreach($this->getPlotChunks($plotTo) as $hash) {
 		    World::getXZ($hash, $x, $z);
-			$world->setChunk($x, $z, $world->getChunk($x, $z) ?? new Chunk([], BiomeArray::fill(BiomeIds::PLAINS), false));
+			$world->setChunk($x, $z, $world->getChunk($x, $z) ?? new Chunk([], false));
 		}
 		return true;
 	}
@@ -746,7 +739,7 @@ class MyPlot extends PluginBase
 			$styler->removeSelection(99998);
             foreach($this->getPlotChunks($plot) as $hash) {
                 World::getXZ($hash, $x, $z);
-                $level->setChunk($x, $z, $level->getChunk($x, $z) ?? new Chunk([], BiomeArray::fill(BiomeIds::PLAINS), false));
+                $level->setChunk($x, $z, $level->getChunk($x, $z) ?? new Chunk([], false));
             }
 			$this->getScheduler()->scheduleDelayedTask(new ClearBorderTask($this, $plot), 1);
 			return true;
@@ -831,12 +824,14 @@ class MyPlot extends PluginBase
 		$chunks = $this->getPlotChunks($plot);
 		foreach($chunks as $hash) {
 		    World::getXZ($hash, $chunkX, $chunkZ);
-		    $chunk = $level->getChunk($chunkX, $chunkZ) ?? new Chunk([], BiomeArray::fill(BiomeIds::PLAINS), false);
+		    $chunk = $level->getChunk($chunkX, $chunkZ) ?? new Chunk([], false);
 			for($x = 0; $x < 16; ++$x) {
 				for($z = 0; $z < 16; ++$z) {
 					$chunkPlot = $this->getPlotByPosition(new Position(($chunkX << Chunk::COORD_BIT_SIZE) + $x, $plotLevel->groundHeight, ($chunkZ << Chunk::COORD_BIT_SIZE) + $z, $level));
 					if($chunkPlot instanceof Plot and $chunkPlot->isSame($plot)) {
-						$chunk->setBiomeId($x, $z, $biome->getId());
+						for ($y = World::Y_MIN; $y < World::Y_MAX; $y++){
+							$chunk->setBiomeId($x, $y, $z, $biome->getId());
+						}
 					}
 				}
 			}
@@ -1074,12 +1069,12 @@ class MyPlot extends PluginBase
 	/* -------------------------- Non-API part -------------------------- */
 	public function onLoad() : void {
 		self::$instance = $this;
-		$this->getLogger()->debug(TF::BOLD . "Loading Configs");
+		$this->getLogger()->debug(TextFormat::BOLD . "Loading Configs");
 		$this->reloadConfig();
 		@mkdir($this->getDataFolder() . "worlds");
-		$this->getLogger()->debug(TF::BOLD . "Loading MyPlot Generator");
+		$this->getLogger()->debug(TextFormat::BOLD . "Loading MyPlot Generator");
 		GeneratorManager::getInstance()->addGenerator(MyPlotGenerator::class, "myplot", fn() => null, true);
-		$this->getLogger()->debug(TF::BOLD . "Loading Languages");
+		$this->getLogger()->debug(TextFormat::BOLD . "Loading Languages");
 		// Loading Languages
 		/** @var string $lang */
 		$lang = $this->getConfig()->get("Language", Language::FALLBACK_LANGUAGE);
@@ -1096,7 +1091,7 @@ class MyPlot extends PluginBase
 			}
 			$this->baseLang = new Language($lang, $this->getFile() . "resources/");
 		}
-		$this->getLogger()->debug(TF::BOLD . "Loading Data Provider settings");
+		$this->getLogger()->debug(TextFormat::BOLD . "Loading Data Provider settings");
 		// Initialize DataProvider
 		/** @var int $cacheSize */
 		$cacheSize = $this->getConfig()->get("PlotCacheSize", 256);
@@ -1151,12 +1146,12 @@ class MyPlot extends PluginBase
 				$this->getLogger()->error("The selected data provider crashed. JSON will be used instead.");
 				$this->dataProvider = new JSONDataProvider($this, $cacheSize);
 			}
-		$this->getLogger()->debug(TF::BOLD . "Loading Plot Clearing settings");
+		$this->getLogger()->debug(TextFormat::BOLD . "Loading Plot Clearing settings");
 		if($this->getConfig()->get("FastClearing", false) and $this->getServer()->getPluginManager()->getPlugin("WorldStyler") === null) {
 			$this->getConfig()->set("FastClearing", false);
-			$this->getLogger()->info(TF::BOLD . "WorldStyler not found. Legacy clearing will be used.");
+			$this->getLogger()->info(TextFormat::BOLD . "WorldStyler not found. Legacy clearing will be used.");
 		}
-		$this->getLogger()->debug(TF::BOLD . "Loading economy settings");
+		$this->getLogger()->debug(TextFormat::BOLD . "Loading economy settings");
 		// Initialize EconomyProvider
 		if($this->getConfig()->get("UseEconomy", false) === true) {
 			if(($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI")) !== null) {
@@ -1172,22 +1167,22 @@ class MyPlot extends PluginBase
 				//$this->getConfig()->save();
 			}
 		}
-		$this->getLogger()->debug(TF::BOLD . "Loading MyPlot Commands");
+		$this->getLogger()->debug(TextFormat::BOLD . "Loading MyPlot Commands");
 		// Register command
 		$this->getServer()->getCommandMap()->register("myplot", new Commands($this));
 	}
 
 	public function onEnable() : void {
-		$this->getLogger()->debug(TF::BOLD . "Loading Events");
+		$this->getLogger()->debug(TextFormat::BOLD . "Loading Events");
 
         $this->getServer()->getPluginManager()->registerEvents(new PlayerChatListener(), $this);
 		$eventListener = new EventListener($this);
 		$this->getServer()->getPluginManager()->registerEvents($eventListener, $this);
-		$this->getLogger()->debug(TF::BOLD . "Registering Loaded Levels");
+		$this->getLogger()->debug(TextFormat::BOLD . "Registering Loaded Levels");
 		foreach($this->getServer()->getWorldManager()->getWorlds() as $level) {
 			$eventListener->onLevelLoad(new WorldLoadEvent($level));
 		}
-		$this->getLogger()->debug(TF::BOLD.TF::GREEN."Enabled!");
+		$this->getLogger()->debug(TextFormat::BOLD . TextFormat::GREEN."Enabled!");
 
 		$this->saveResource("plotsquaredpm.yml");
 
@@ -1196,12 +1191,6 @@ class MyPlot extends PluginBase
             if (isset($data["id"]) and isset($data["perm"])) {
 				if (($parsedResult = StringToItemParser::getInstance()->parse($data["id"])) != null) {
 					self::$borders[] = new Border($name, $parsedResult->getBlock(), $data["perm"]);
-				} else {
-					$block = explode(':', $data["id"]);
-					if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-						$block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
-						self::$borders[] = new Border($name, $block, $data["perm"]);
-					}
 				}
             }
         }
@@ -1210,12 +1199,6 @@ class MyPlot extends PluginBase
             if (isset($data["id"]) and isset($data["perm"])) {
 				if (($parsedResult = StringToItemParser::getInstance()->parse($data["id"])) != null) {
 					self::$walls[] = new Wall($name, $parsedResult->getBlock(), $data["perm"]);
-				} else {
-					$block = explode(':', $data["id"]);
-					if (count($block) === 2 and is_numeric($block[0]) and is_numeric($block[1])) {
-						$block = BlockFactory::getInstance()->get((int) $block[0], (int) $block[1]);
-						self::$walls[] = new Wall($name, $block, $data["perm"]);
-					}
 				}
             }
         }
@@ -1238,7 +1221,6 @@ class MyPlot extends PluginBase
 	}
 
 	public function onDisable() : void {
-		if($this->dataProvider !== null)
-			$this->dataProvider->close();
+		$this->dataProvider?->close();
 	}
 }

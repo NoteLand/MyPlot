@@ -49,8 +49,6 @@ class ChangeBorderTask extends Task
             $this->level->setBlock(new Vector3($this->plotBeginPos->x, $this->height + 1, $z), $this->plotWallBlock, false);
             $this->level->setBlock(new Vector3($this->xMax, $this->height + 1, $z), $this->plotWallBlock, false);
         }
-        if ($this->player !== null) {
-            $this->player->sendMessage(MyPlot::getPrefix() . MyPlot::getInstance()->getLanguage()->translateString("border.success", [$this->plot]));
-        }
+		$this->player?->sendMessage(MyPlot::getPrefix() . MyPlot::getInstance()->getLanguage()->translateString("border.success", [$this->plot]));
     }
 }

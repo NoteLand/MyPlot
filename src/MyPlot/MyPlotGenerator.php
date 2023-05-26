@@ -2,13 +2,15 @@
 declare(strict_types=1);
 namespace MyPlot;
 
+use JsonException;
 use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\world\ChunkManager;
-use pocketmine\world\format\BiomeArray;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\generator\Generator;
+use pocketmine\world\World;
+use SplFixedArray;
 
 class MyPlotGenerator extends Generator {
     protected Block $roadBlock;
@@ -35,7 +37,7 @@ class MyPlotGenerator extends Generator {
         parent::__construct($seed, $preset);
         try{
             $options = json_decode($preset, true, 512, JSON_THROW_ON_ERROR);
-        }catch(\JsonException $e) {
+        }catch(JsonException $exception) {
             $options = [];
         }
         $this->roadBlock = PlotLevelSettings::parseBlock($options, "RoadBlock", VanillaBlocks::OAK_PLANKS());
@@ -50,35 +52,37 @@ class MyPlotGenerator extends Generator {
 
     public function generateChunk(ChunkManager $world, int $chunkX, int $chunkZ) : void {
         $shape = $this->getShape($chunkX << 4, $chunkZ << 4);
-        $chunk = $world->getChunk($chunkX, $chunkZ) ?? new Chunk([], BiomeArray::fill(BiomeIds::PLAINS), false);
-        $bottomBlockId = $this->bottomBlock->getFullId();
-        $plotFillBlockId = $this->plotFillBlock->getFullId();
-        $plotFloorBlockId = $this->plotFloorBlock->getFullId();
-        $roadBlockId = $this->roadBlock->getFullId();
-        $wallBlockId = $this->wallBlock->getFullId();
+        $chunk = $world->getChunk($chunkX, $chunkZ) ?? new Chunk([], false);
+        $bottomBlockId = $this->bottomBlock->getStateId();
+        $plotFillBlockId = $this->plotFillBlock->getStateId();
+        $plotFloorBlockId = $this->plotFloorBlock->getStateId();
+        $roadBlockId = $this->roadBlock->getStateId();
+        $wallBlockId = $this->wallBlock->getStateId();
         $groundHeight = $this->groundHeight;
         for($Z = 0; $Z < 16; ++$Z) {
             for($X = 0; $X < 16; ++$X) {
-                $chunk->setBiomeId($X, $Z, BiomeIds::PLAINS);
-                $chunk->setFullBlock($X, 0, $Z, $bottomBlockId);
-                $chunk->setFullBlock($X, 0, $Z, $bottomBlockId);
+				for ($y = World::Y_MIN; $y < World::Y_MAX; $y++){
+					$chunk->setBiomeId($X, $y, $Z, BiomeIds::PLAINS);
+				}
+                $chunk->setBlockStateId($X, 0, $Z, $bottomBlockId);
+                $chunk->setBlockStateId($X, 0, $Z, $bottomBlockId);
                 for($y = 1; $y < $groundHeight; ++$y) {
-                    $chunk->setFullBlock($X, $y, $Z, $plotFillBlockId);
+                    $chunk->setBlockStateId($X, $y, $Z, $plotFillBlockId);
                 }
                 $type = $shape[($Z << 4) | $X];
                 if($type === self::PLOT) {
-                    $chunk->setFullBlock($X, $groundHeight, $Z, $plotFloorBlockId);
+                    $chunk->setBlockStateId($X, $groundHeight, $Z, $plotFloorBlockId);
                 }elseif($type === self::ROAD) {
-                    $chunk->setFullBlock($X, $groundHeight, $Z, $roadBlockId);
+                    $chunk->setBlockStateId($X, $groundHeight, $Z, $roadBlockId);
                 }else{
-                    $chunk->setFullBlock($X, $groundHeight, $Z, $roadBlockId);
-                    $chunk->setFullBlock($X, $groundHeight + 1, $Z, $wallBlockId);
+                    $chunk->setBlockStateId($X, $groundHeight, $Z, $roadBlockId);
+                    $chunk->setBlockStateId($X, $groundHeight + 1, $Z, $wallBlockId);
                 }
             }
         }
     }
 
-    public function getShape(int $x, int $z) : \SplFixedArray {
+    public function getShape(int $x, int $z) : SplFixedArray {
         $totalSize = $this->plotSize + $this->roadWidth;
         if($x >= 0) {
             $X = $x % $totalSize;
@@ -91,7 +95,7 @@ class MyPlotGenerator extends Generator {
             $Z = $totalSize - abs($z % $totalSize);
         }
         $startX = $X;
-        $shape = new \SplFixedArray(256);
+        $shape = new SplFixedArray(256);
         for($z = 0; $z < 16; $z++, $Z++) {
             if($Z === $totalSize) {
                 $Z = 0;

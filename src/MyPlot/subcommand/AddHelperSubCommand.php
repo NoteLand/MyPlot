@@ -37,7 +37,7 @@ class AddHelperSubCommand extends SubCommand
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		$helper = $this->getPlugin()->getServer()->getPlayerByPrefix($helperName);
+		$helper = $this->getPlugin()->getServer()->getPlayerExact($helperName);
 		if($helper === null)
 			$helper = new OfflinePlayer($helperName, null);
 		if($this->getPlugin()->addPlotHelper($plot, $helper->getName())) {

@@ -51,8 +51,6 @@ class ChangeWallTask extends Task
                 $this->level->setBlock(new Vector3($this->xMax, $y, $z), $this->plotWallBlock, false);
             }
         }
-        if ($this->player !== null) {
-            $this->player->sendMessage(MyPlot::getPrefix() . MyPlot::getInstance()->getLanguage()->translateString("wall.success", [$this->plot]));
-        }
+		$this->player?->sendMessage(MyPlot::getPrefix() . MyPlot::getInstance()->getLanguage()->translateString("wall.success", [$this->plot]));
     }
 }

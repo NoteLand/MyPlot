@@ -25,7 +25,7 @@ class HomeSubCommand extends SubCommand
     public function execute(CommandSender $sender, array $args): bool
     {
         if (isset($args[0]) && is_numeric($args[0]) === false) {
-            if (!$s = $this->getPlugin()->getServer()->getPlayerByPrefix($args[0])) {
+            if (!$s = $this->getPlugin()->getServer()->getPlayerExact($args[0])) {
                 $p = $args[0];
             } else {
                 $p = $s->getName();
@@ -33,7 +33,7 @@ class HomeSubCommand extends SubCommand
             if (isset($args[1]) && is_numeric($args[1])) {
                 $plotNumber = (int)$args[1];
             } else {
-                $plotNumber = (int)1;
+                $plotNumber = 1;
             }
             $levelName = $sender->getPosition()->getWorld()->getFolderName();
             $plots = $this->getPlugin()->getPlotsOfPlayer($p, $levelName);
@@ -65,7 +65,7 @@ class HomeSubCommand extends SubCommand
         if (isset($args[0]) && is_numeric($args[0])) {
             $plotNumber = (int)$args[0];
         } else {
-            $plotNumber = (int)1;
+            $plotNumber = 1;
         }
 
         $levelName = $sender->getPosition()->getWorld()->getFolderName();

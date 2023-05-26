@@ -47,7 +47,7 @@ class MyPlotDenyEvent extends MyPlotPlotEvent implements Cancellable {
 	 *
 	 * @return self
 	 */
-	public function setDenied($player) : self {
+	public function setDenied(IPlayer|string $player) : self {
 		if($player instanceof IPlayer) {
 			$this->player = $player->getName();
 		}elseif(is_string($player)) {

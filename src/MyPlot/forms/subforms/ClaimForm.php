@@ -12,8 +12,7 @@ use pocketmine\utils\TextFormat;
 
 class ClaimForm extends ComplexMyPlotForm {
 
-	/** @var Player $player */
-	private $player;
+	private Player $player;
 
 	public function __construct(Player $player) {
 	    $this->player = $player;
