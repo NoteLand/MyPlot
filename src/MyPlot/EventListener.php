@@ -33,16 +33,14 @@ use pocketmine\world\World;
 
 class EventListener implements Listener {
 
-	private MyPlot $plugin;
-
 	/**
 	 * EventListener constructor.
 	 *
 	 * @param MyPlot $plugin
 	 */
-	public function __construct(MyPlot $plugin) {
-		$this->plugin = $plugin;
-	}
+	public function __construct(
+		private readonly MyPlot $plugin
+	) {}
 
 	/**
 	 * @priority LOWEST
