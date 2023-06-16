@@ -99,7 +99,10 @@ class EventListener implements Listener {
 		 * @var Block $block
 		 */
 		foreach ($event->getTransaction()->getBlocks() as [$x, $y, $z, $block]) {
-			$this->onEventOnBlock(new BlockBreakEvent($event->getPlayer(), $block, $event->getItem()));
+			$ev = new BlockBreakEvent($event->getPlayer(), $block, $event->getItem());
+			$this->onEventOnBlock($ev);
+			if($ev->isCancelled())
+				$event->cancel();
 		}
 	}
 
