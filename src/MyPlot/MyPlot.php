@@ -254,8 +254,8 @@ class MyPlot extends PluginBase
 	 * @return Plot|null
 	 */
 	public function getPlotByPosition(Position $position) : ?Plot {
-		$x = $position->x;
-		$z = $position->z;
+		$x = $position->getFloorX();
+		$z = $position->getFloorZ();
 		$levelName = $position->getWorld()->getFolderName();
 		if(!$this->isLevelLoaded($levelName))
 			return null;
@@ -291,15 +291,15 @@ class MyPlot extends PluginBase
 		$plotLevelSettings = $this->getLevelSettings($levelName);
 		if (($plot = $this->getPlotByPosition($position)) !== null)
 			return $plot;
-		$plotToCheck1 = $this->getPlotByPosition(new Position($position->x + $plotLevelSettings->roadWidth, $position->y, $position->z, $position->getWorld()));
-		$plotToCheck2 = $this->getPlotByPosition(new Position($position->x - $plotLevelSettings->roadWidth, $position->y, $position->z, $position->getWorld()));
+		$plotToCheck1 = $this->getPlotByPosition(new Position($position->getFloorX() + $plotLevelSettings->roadWidth, $position->getFloorY(), $position->getFloorZ(), $position->getWorld()));
+		$plotToCheck2 = $this->getPlotByPosition(new Position($position->getFloorX() - $plotLevelSettings->roadWidth, $position->getFloorY(), $position->getFloorZ(), $position->getWorld()));
 		if ($plotToCheck1 !== null && $plotToCheck2 !== null) {
 			if ($plotToCheck1->isMerged("westmerge") and $plotToCheck2->isMerged("eastmerge"))
 				return $plotToCheck1;
 			return null;
 		}
-		$plotToCheck1 = $this->getPlotByPosition(new Position($position->x, $position->y, $position->z + $plotLevelSettings->roadWidth, $position->getWorld()));
-		$plotToCheck2 = $this->getPlotByPosition(new Position($position->x, $position->y, $position->z - $plotLevelSettings->roadWidth, $position->getWorld()));
+		$plotToCheck1 = $this->getPlotByPosition(new Position($position->getFloorX(), $position->getFloorY(), $position->getFloorZ() + $plotLevelSettings->roadWidth, $position->getWorld()));
+		$plotToCheck2 = $this->getPlotByPosition(new Position($position->getFloorX(), $position->getFloorY(), $position->getFloorZ() - $plotLevelSettings->roadWidth, $position->getWorld()));
 		if ($plotToCheck1 !== null && $plotToCheck2 !== null) {
 			if ($plotToCheck1->isMerged("northmerge") and $plotToCheck2->isMerged("southmerge"))
 				return $plotToCheck1;
@@ -352,8 +352,8 @@ class MyPlot extends PluginBase
 			return false;
 		for($i = Facing::NORTH; $i <= Facing::EAST; ++$i) {
 			$pos = $position->getSide($i);
-			$x = $pos->x;
-			$z = $pos->z;
+			$x = $pos->getFloorX();
+			$z = $pos->getFloorZ();
 			$levelName = $pos->getWorld()->getFolderName();
 
 			if(!$this->isLevelLoaded($levelName))
@@ -383,8 +383,8 @@ class MyPlot extends PluginBase
 				if($i === $n or Facing::opposite($i) === $n)
 					continue;
 				$pos = $position->getSide($i)->getSide($n);
-				$x = $pos->x;
-				$z = $pos->z;
+				$x = $pos->getFloorX();
+				$z = $pos->getFloorZ();
 				$levelName = $pos->getWorld()->getFolderName();
 
 				$plotLevel = $this->getLevelSettings($levelName);
@@ -424,8 +424,8 @@ class MyPlot extends PluginBase
 			return null;
 		for($i = Facing::NORTH; $i <= Facing::EAST; ++$i) {
 			$pos = $position->getSide($i);
-			$x = $pos->x;
-			$z = $pos->z;
+			$x = $pos->getFloorX();
+			$z = $pos->getFloorZ();
 			$levelName = $pos->getWorld()->getFolderName();
 
 			if(!$this->isLevelLoaded($levelName))
