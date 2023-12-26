@@ -18,7 +18,7 @@ class PlayerChatListener implements Listener
      *
      * @param PlayerChatEvent $event
      */
-    public function onChat(PlayerChatEvent $event) {
+    public function onChat(PlayerChatEvent $event) : void {
         if ($event->isCancelled()) return;
         $levelName = $event->getPlayer()->getPosition()->getWorld()->getFolderName();
         if(!MyPlot::getInstance()->isLevelLoaded($levelName)) return;
