@@ -158,11 +158,11 @@ class Plot
      * @api
      *
      * @param string $flag_name
-	 * @param mixed  $default
+	 * @param string|bool|int|float  $default
      *
-     * @return bool|mixed
+     * @return string|bool|int|float
      */
-    public function getFlag(string $flag_name, $default = false) {
+    public function getFlag(string $flag_name, string|bool|int|float $default = false) : string|bool|int|float {
 		return $this->flags[$flag_name] ?? $default;
     }
 
@@ -170,11 +170,11 @@ class Plot
      * @api
      *
      * @param string $flag
-     * @param $value
+     * @param string|bool|int|float $value
      *
      * @return bool
      */
-    public function setFlag(string $flag, $value) : bool {
+    public function setFlag(string $flag, string|bool|int|float $value) : bool {
         $this->flags[$flag] = $value;
         return MyPlot::getInstance()->savePlot($this);
     }
