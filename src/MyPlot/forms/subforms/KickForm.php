@@ -13,8 +13,12 @@ class KickForm extends ComplexMyPlotForm {
 	/** @var string[] $players */
 	private array $players = [];
 
-	public function __construct() {
+	public function __construct(Player $player) {
 		$plugin = MyPlot::getInstance();
+		if(!isset($this->plot))
+			$this->plot = $plugin->getPlotByPosition($player->getPosition());
+		if(!isset($this->plot))
+			return;
 		$players = [];
 		foreach($plugin->getServer()->getOnlinePlayers() as $player) {
 			$plot = $plugin->getPlotByPosition($player->getPosition());

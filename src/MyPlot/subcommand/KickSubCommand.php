@@ -58,7 +58,7 @@ class KickSubCommand extends SubCommand
 
 	public function getForm(?Player $player = null) : ?MyPlotForm {
 		if($player !== null and $this->getPlugin()->getPlotByPosition($player->getPosition()) instanceof Plot)
-			return new KickForm();
+			return new KickForm($player);
 		return null;
 	}
 }
