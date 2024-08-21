@@ -13,7 +13,7 @@ class InfoForm extends SimpleMyPlotForm {
         if(!isset($this->plot))
             return;
 
-        if (MyPlot::getInstance()->getServer()->getPlayerByPrefix($this->plot->owner)) {
+        if (MyPlot::getInstance()->getServer()->getPlayerExact($this->plot->owner)) {
             $owner = $this->plot->owner . " §a(Online)";
         } else {
             $owner = $this->plot->owner . " §c(Offline)";
