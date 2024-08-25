@@ -6,6 +6,7 @@ use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\DescriptionForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+use MyPlot\utils\Flags;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
@@ -36,9 +37,9 @@ class DescriptionSubCommand extends SubCommand
             return true;
         }
         if ($args[0] === "remove") {
-            $plot->removeFlag("description");
+            $plot->removeFlag(Flags::DESCRIPTION);
         } else {
-            $plot->setFlag("description", implode(" ", $args));
+            $plot->setFlag(Flags::DESCRIPTION, implode(" ", $args));
         }
         $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("description.success"));
         return true;

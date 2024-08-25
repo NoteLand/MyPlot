@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace MyPlot\subcommand;
 
-use MyPlot\MyPlot;
-use pocketmine\command\CommandSender;
 use MyPlot\forms\MyPlotForm;
+use MyPlot\MyPlot;
+use MyPlot\utils\Flags;
+use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
 class SpawnSubCommand extends SubCommand
@@ -41,14 +42,14 @@ class SpawnSubCommand extends SubCommand
         }
         if (isset($args[0])) {
             if ($args[0] === "remove") {
-                $plot->removeFlag("spawn");
+                $plot->removeFlag(Flags::SPAWN);
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("spawn.reset"));
                 return true;
             }
         }
         $position = $sender->getPosition();
         $spawn = $position->getFloorX() . ";" . $position->getFloorY() . ";" . $position->getFloorZ();
-        $plot->setFlag("spawn", $spawn);
+        $plot->setFlag(Flags::SPAWN, $spawn);
         $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("spawn.success"));
         return true;
     }

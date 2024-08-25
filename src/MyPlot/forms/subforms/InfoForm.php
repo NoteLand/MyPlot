@@ -4,6 +4,7 @@ namespace MyPlot\forms\subforms;
 
 use MyPlot\forms\SimpleMyPlotForm;
 use MyPlot\MyPlot;
+use MyPlot\utils\Flags;
 use pocketmine\player\Player;
 
 class InfoForm extends SimpleMyPlotForm {
@@ -20,10 +21,10 @@ class InfoForm extends SimpleMyPlotForm {
         }
         $helpers = implode(", ", $this->plot->helpers);
         $denied = implode(", ", $this->plot->denied);
-        if (!$this->plot->getFlag("description")) {
+        if (!$this->plot->getFlag(Flags::DESCRIPTION)) {
             $description = "";
         } else {
-            $description = $this->plot->getFlag("description");
+            $description = $this->plot->getFlag(Flags::DESCRIPTION);
         }
 		parent::__construct(
 		    MyPlot::getInstance()->getLanguage()->translateString("info.title"),

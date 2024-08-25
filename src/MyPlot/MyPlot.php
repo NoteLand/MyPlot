@@ -27,6 +27,7 @@ use MyPlot\task\ClearBorderTask;
 use MyPlot\task\ClearPlotTask;
 use MyPlot\task\MergePlotTast;
 use MyPlot\utils\Border;
+use MyPlot\utils\Flags;
 use MyPlot\utils\Wall;
 use onebone\economyapi\EconomyAPI;
 use pocketmine\block\VanillaBlocks;
@@ -504,8 +505,8 @@ class MyPlot extends PluginBase
         if($plotLevel === null)
             return false;
 
-        if ($plot->getFlag("spawn") !== false) {
-            $spawn = explode(";", $plot->getFlag("spawn"));
+        if ($plot->getFlag(Flags::SPAWN) !== false) {
+            $spawn = explode(";", $plot->getFlag(Flags::SPAWN));
             if (count($spawn) === 3 and is_numeric($spawn[0]) and is_numeric($spawn[1]) and is_numeric($spawn[2])) {
                 $spawn = new Position(intval($spawn[0]), intval($spawn[1]), intval($spawn[2]), $this->getServer()->getWorldManager()->getWorldByName($plot->levelName));
                 return $player->teleport($spawn);

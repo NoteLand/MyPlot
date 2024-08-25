@@ -5,6 +5,7 @@ namespace MyPlot\listeners;
 
 
 use MyPlot\MyPlot;
+use MyPlot\utils\Flags;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\utils\TextFormat;
@@ -27,7 +28,7 @@ class PlayerChatListener implements Listener
 
         $message = $event->getMessage();
 
-        if ($plot->getFlag("chat")) {
+        if ($plot->getFlag(Flags::CHAT)) {
             $event->cancel();
             $players = MyPlot::getInstance()->getServer()->getOnlinePlayers();
             foreach ($players as $player) {

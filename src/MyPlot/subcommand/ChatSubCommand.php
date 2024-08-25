@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace MyPlot\subcommand;
 
+use MyPlot\forms\MyPlotForm;
 use MyPlot\forms\subforms\ChatForm;
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+use MyPlot\utils\Flags;
 use pocketmine\command\CommandSender;
-use MyPlot\forms\MyPlotForm;
 use pocketmine\player\Player;
 
 class ChatSubCommand extends SubCommand
@@ -43,11 +44,11 @@ class ChatSubCommand extends SubCommand
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("notowner"));
                 return true;
             }
-		    if ($plot->getFlag("chat")) {
-		        $plot->setFlag("chat", false);
+		    if ($plot->getFlag(Flags::CHAT)) {
+		        $plot->setFlag(Flags::CHAT, false);
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("chat.toggle_off"));
             } else {
-                $plot->setFlag("chat", true);
+                $plot->setFlag(Flags::CHAT, true);
                 $sender->sendMessage(MyPlot::getPrefix() . $this->translateString("chat.toggle_on"));
             }
 		    $this->getPlugin()->getProvider()->savePlot($plot);
