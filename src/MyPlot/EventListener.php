@@ -461,8 +461,10 @@ class EventListener implements Listener {
 			if ($event->isCancelled()) {
 				return;
 			}
-			if ($plot->getFlag(Flags::FLY))
-				$player->setAllowFlight(true);
+			if ($plot->getFlag(Flags::FLY)) {
+				if (!$player->isCreative())
+					$player->setAllowFlight(true);
+			}
 			if (($value = $plot->getFlag(Flags::WELCOME, "")) != "")
 				$player->sendPopup($value);
 			if (!(bool) $this->plugin->getConfig()->get("ShowPlotPopup", true))
@@ -492,8 +494,10 @@ class EventListener implements Listener {
 			if ($event->isCancelled()) $ev->cancel();
 			$ev->call();
 			$ev->isCancelled() ? $event->cancel() : $event->uncancel();
-			$player->setAllowFlight(false);
-			$player->setFlying(false);
+			if (!$player->isCreative()) {
+				$player->setAllowFlight(false);
+				$player->setFlying(false);
+			}
 			if (($value = $plotFrom->getFlag(Flags::FAREWELL, "")) == "")
 				return;
 			$player->sendTip($value);
