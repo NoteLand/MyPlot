@@ -5,6 +5,7 @@ namespace MyPlot\forms\subforms;
 use MyPlot\forms\SimpleMyPlotForm;
 use MyPlot\MyPlot;
 use MyPlot\utils\Flags;
+use MyPlot\utils\FlagsFactory;
 use pocketmine\player\Player;
 
 class InfoForm extends SimpleMyPlotForm {
@@ -26,9 +27,19 @@ class InfoForm extends SimpleMyPlotForm {
         } else {
             $description = $this->plot->getFlag(Flags::DESCRIPTION);
         }
+		$flag_names = [];
+		foreach (array_keys($this->plot->flags) as $flag_name) {
+			if (($type = FlagsFactory::getInstance()->getFlagType($flag_name)) != -1) {
+				if ($type == FlagsFactory::TYPE_BOOLEAN) {
+					if ($this->plot->getFlag($flag_name))
+						$flag_names[] = $flag_name;
+				}
+			}
+		}
+		$flags = implode(", ", $flag_names);
 		parent::__construct(
 		    MyPlot::getInstance()->getLanguage()->translateString("info.title"),
-            MyPlot::getInstance()->getLanguage()->translateString("info.content", [$this->plot, $owner, $description, $this->plot->name, $helpers, $denied]),
+            MyPlot::getInstance()->getLanguage()->translateString("info.content", [$this->plot, $owner, $description, $this->plot->name, $helpers, $denied, $flags]),
             [],
             function(Player $submitter, int $selected) : void {},
             function () : void {}

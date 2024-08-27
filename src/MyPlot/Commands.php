@@ -16,6 +16,7 @@ use MyPlot\subcommand\CloneSubCommand;
 use MyPlot\subcommand\DenyPlayerSubCommand;
 use MyPlot\subcommand\DescriptionSubCommand;
 use MyPlot\subcommand\DisposeSubCommand;
+use MyPlot\subcommand\FlagsSubCommand;
 use MyPlot\subcommand\GenerateSubCommand;
 use MyPlot\subcommand\GiveSubCommand;
 use MyPlot\subcommand\HelpSubCommand;
@@ -88,6 +89,7 @@ class Commands extends Command implements PluginOwned
         $this->loadSubCommand(new DenyPlayerSubCommand($plugin, "denyplayer"));
         $this->loadSubCommand(new DescriptionSubCommand($plugin, "description"));
 		$this->loadSubCommand(new DisposeSubCommand($plugin, "dispose"));
+		$this->loadSubCommand(new FlagsSubCommand($plugin, "flags"));
         $this->loadSubCommand(new GenerateSubCommand($plugin, "generate"));
         $this->loadSubCommand(new GiveSubCommand($plugin, "give"));
         $this->loadSubCommand(new HelpSubCommand($plugin, "help", $this));

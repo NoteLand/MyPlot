@@ -33,7 +33,7 @@ permissions:
   myplot.wall.op:
     default: op
   myplot.command:
-    default: op
+    default: true
   myplot.command.help:
     default: true
   myplot.command.claim:
@@ -104,6 +104,8 @@ permissions:
     default: true
   myplot.command.unmerge:
     default: true
+  myplot.command.flags:
+    default: true
   myplot.admin:
     default: op
   myplot.admin.clear:
@@ -167,6 +169,10 @@ permissions:
   myplot.admin.merge:
     default: op
   myplot.admin.unmerge:
+    default: op
+  myplot.admin.flags:
+    default: op
+  myplot.admin.flags.bypass:
     default: op
   myplot.claimplots:
     default: op

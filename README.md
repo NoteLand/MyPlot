@@ -6,7 +6,7 @@
 - [x] /p chat
 - [x] /p spawn
 - [x] /p merge
-- [ ] /p flags
+- [x] /p flags
 - [x] /p home "name"
 - [x] /p wall
 - [x] /p border (+ClaimBorder)

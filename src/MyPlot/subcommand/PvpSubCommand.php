@@ -4,6 +4,7 @@ namespace MyPlot\subcommand;
 
 use MyPlot\forms\MyPlotForm;
 use MyPlot\MyPlot;
+use MyPlot\utils\Flags;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
@@ -35,10 +36,11 @@ class PvpSubCommand extends SubCommand {
 			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("pvp.world"));
 			return true;
 		}
-		if($this->getPlugin()->setPlotPvp($plot, !$plot->pvp)) {
-			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("pvp.success", [!$plot->pvp ? "enabled" : "disabled"]));
+		$state = $plot->getFlag(Flags::PVP);
+		if($plot->setFlag(Flags::PVP, !$state)) {
+			$sender->sendMessage(MyPlot::getPrefix() . $this->translateString("pvp.success", [!$state ? "enabled" : "disabled"]));
 		}else {
-			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED.$this->translateString("error"));
+			$sender->sendMessage(MyPlot::getPrefix() . TextFormat::RED . $this->translateString("error"));
 		}
 		return true;
 	}
